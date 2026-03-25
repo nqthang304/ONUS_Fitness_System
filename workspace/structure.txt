@@ -1,0 +1,35 @@
+Project Structure 
+================= 
+D:\DaiHoc\Source\ONUS_Fitness_System\frontend 
+├── public/ 
+  │└── favicon.svg 
+  │└── icons.svg 
+├── src/ 
+  │├── assets/ 
+  │├── components/ 
+    ││├── layout/ 
+    ││├── ui/ 
+      │││└── button.jsx 
+  │├── lib/ 
+    ││└── utils.js 
+  │├── pages/ 
+  │├── providers/ 
+    ││└── auth.providers.jsx 
+    ││└── fitness.providers.jsx 
+    ││└── notification.providers.jsx 
+  │├── routes/ 
+    ││└── index.jsx 
+  │├── services/ 
+  │└── App.jsx 
+  │└── index.css 
+  │└── main.jsx 
+└── components.json 
+└── eslint.config.js 
+└── index.html 
+└── jsconfig.json 
+└── package.json 
+└── package-lock.json 
+└── postcss.config.js 
+└── README.md 
+└── tailwind.config.js 
+└── vite.config.js 
