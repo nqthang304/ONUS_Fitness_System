@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dumbbell, Utensils, FileText, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useAuth } from "@/providers/auth.providers";
 
 const TRACKING_MODULES = [
   {
@@ -34,10 +36,21 @@ const TRACKING_MODULES = [
 
 const TrackingHubPage = () => {
   const navigate = useNavigate();
+  const { role } = useAuth();
+
+  useEffect(() => {
+    if (role && role !== "HOIVIEN") {
+      navigate("/", { replace: true });
+    }
+  }, [role, navigate]);
+
+  if (role && role !== "HOIVIEN") {
+    return null;
+  }
 
   return (
     <div className="flex flex-col gap-3 w-full p-4">
-      <header className="flex flex-col gap-1">
+      <header className="flex flex-col gap-1 pb-4">
         <h2 className="text-2xl font-bold text-slate-900">Theo dõi tập luyện</h2>
         <p className="text-slate-600">Quản lý bài tập và dinh dưỡng cá nhân</p>
       </header>

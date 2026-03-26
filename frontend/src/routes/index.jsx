@@ -8,6 +8,8 @@ import MealSchedulePage from "@/pages/mealSchedulePage";
 import WorkoutSchedulePage from "@/pages/workoutSchedulePage";
 import TrackingHubPage from "@/pages/trackingHub";
 import MemberWorkoutPage from "@/pages/memberWorkoutPage";
+import ResultPage from "@/pages/ResultPage";
+
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -73,7 +75,10 @@ export const router = createBrowserRouter([
       },
       {
         path: 'ket-qua',
-        element: <div>Đây là trang Quản lý kết quả tập luyện</div>
+        children: [
+          { index: true, element: <ResultPage /> }, // Hub chọn (HLV) hoặc Xem của mình (Hội viên)
+          { path: ":memberId", element: <ResultPage /> } // Xem chi tiết theo ID (HLV)
+        ]
       },
       {
         path: "tai-khoan",

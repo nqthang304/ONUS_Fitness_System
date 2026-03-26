@@ -27,7 +27,7 @@ const MemberPage = () => {
 
     return (
         <div className="flex flex-col gap-3 w-full p-4">
-            <header className="flex flex-col gap-1">
+            <header className="flex flex-col gap-1 pb-4">
                 <h2 className="text-2xl font-bold text-slate-900">Danh sách hội viên</h2>
                 <p className="text-slate-600">Quản lý hội viên do bạn phụ trách</p>
             </header>

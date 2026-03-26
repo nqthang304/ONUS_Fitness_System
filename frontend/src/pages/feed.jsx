@@ -63,7 +63,7 @@ const Feed = () => {
 
   return (
     <div className="flex flex-col gap-3 w-full p-4">
-      <header className="flex flex-col gap-1">
+      <header className="flex flex-col gap-1 pb-4">
         <h2 className="text-2xl font-bold text-slate-900">Trang chủ</h2>
         <p className="text-slate-600">Chia sẻ thông tin và cập nhật</p>
       </header>

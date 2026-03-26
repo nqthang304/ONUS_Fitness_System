@@ -6,7 +6,7 @@ import { ArrowLeft } from "lucide-react";
 export const WorkoutTopBar = ({ memberId, members, onMemberChange, lockMemberChange = false, onBack }) => {
   return (
     <>
-      <div className="flex items-center gap-3 mb-6 font-figtree">
+      <div className="flex items-center gap-3 pb-4 font-figtree">
         <Button variant="ghost" size="icon" onClick={onBack} className="-ml-2">
           <ArrowLeft className="w-5 h-5" />
         </Button>

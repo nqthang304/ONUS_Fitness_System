@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 
 export const ScheduleHeader = ({ isEditing, setIsEditing, role, onBack }) => {
   return (
-    <div className="flex justify-between items-center mb-6 font-figtree">
+    <div className="flex justify-between items-center pb-4 font-figtree">
       <div className="flex items-center gap-3">
         {role !== "HOIVIEN" && (
           <Button variant="ghost" size="icon" onClick={onBack} className="-ml-2">
