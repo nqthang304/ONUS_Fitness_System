@@ -9,6 +9,8 @@ import WorkoutSchedulePage from "@/pages/workoutSchedulePage";
 import TrackingHubPage from "@/pages/trackingHub";
 import MemberWorkoutPage from "@/pages/memberWorkoutPage";
 import ResultPage from "@/pages/ResultPage";
+import MessagePage from "@/pages/messagePage";
+import NotificationPage from "@/pages/notificationPage";
 
 export const router = createBrowserRouter([
   {
@@ -35,11 +37,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "tin-nhan",
-        element: <div>Đây là trang Nhắn tin</div>
+        element: <MessagePage />
       },
       {
         path: "thong-bao",
-        element: <div>Đây là trang Thông báo</div>
+        element: <NotificationPage />
       },
       {
         path: "quan-ly-hoi-vien",
