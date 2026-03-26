@@ -36,15 +36,15 @@ export const MealModals = ({
             </Dialog>
 
             <AlertDialog open={deleteData.isOpen} onOpenChange={(open) => !open && setDeleteData({ isOpen: false, mealType: "", dishId: null })}>
-                <AlertDialogContent className="max-w-[350px] rounded-2xl font-figtree">
-                    <AlertDialogHeader>
-                        <AlertDialogTitle className="text-center">Xác nhận xóa món ăn</AlertDialogTitle>
+                <AlertDialogContent className="max-w-[400px] rounded-2xl font-figtree p-5 gap-4">
+                    <AlertDialogHeader className="items-center text-center">
+                        <AlertDialogTitle className="text-center text-lg font-medium leading-snug">Xác nhận xóa món ăn</AlertDialogTitle>
                     </AlertDialogHeader>
-                    <AlertDialogFooter className="flex flex-row w-full gap-3 mt-4 sm:space-x-0">
-                        <AlertDialogCancel className="flex-1 mt-0 rounded-xl">
+                    <AlertDialogFooter className="flex flex-row w-full items-center gap-3 mt-4 sm:space-x-0">
+                        <AlertDialogCancel className="flex-1 h-10 mt-0 rounded-xl bg-slate-100 hover:bg-slate-200 border-none text-slate-700 font-medium text-center">
                             Hủy
                         </AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete} className="flex-1 bg-red-600 hover:bg-red-700 rounded-xl">
+                        <AlertDialogAction onClick={confirmDelete} className="flex-1 h-10 bg-red-600 hover:bg-red-700 rounded-xl font-medium text-center">
                             Xác nhận
                         </AlertDialogAction>
                     </AlertDialogFooter>

@@ -199,15 +199,15 @@ const PostCard = ({ post, onCommentClick, onUpdatePost, onDeletePost }) => {
       </Dialog>
       {/* Popup xác nhận xóa bài viết (AlertDialog) */}
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-        <AlertDialogContent className="rounded-2xl max-w-[400px]">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-center">Xác nhận xóa bài viết?</AlertDialogTitle>
+        <AlertDialogContent className="rounded-2xl max-w-[400px] font-figtree p-5 gap-4">
+          <AlertDialogHeader className="items-center text-center">
+            <AlertDialogTitle className="text-center text-lg font-medium leading-snug">Xác nhận xóa bài viết?</AlertDialogTitle>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col-reverse sm:flex-row gap-2 align-center">
-            <AlertDialogCancel className="rounded-xl mt-0">Hủy</AlertDialogCancel>
+          <AlertDialogFooter className="flex flex-row w-full items-center gap-3 mt-4 sm:space-x-0">
+            <AlertDialogCancel className="flex-1 h-10 mt-0 rounded-xl bg-slate-100 hover:bg-slate-200 border-none text-slate-700 font-medium text-center">Hủy</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
-              className="bg-red-600 hover:bg-red-700 rounded-xl"
+              className="flex-1 h-10 bg-red-600 hover:bg-red-700 rounded-xl font-medium text-center"
             >
               Xóa bài viết
             </AlertDialogAction>

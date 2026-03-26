@@ -12,6 +12,7 @@ import ResultPage from "@/pages/ResultPage";
 import MessagePage from "@/pages/messagePage";
 import NotificationPage from "@/pages/notificationPage";
 import ProfilePage from "@/pages/profilePage";
+import AdminAccountPage from "@/pages/adminAccountPage";
 
 export const router = createBrowserRouter([
   {
@@ -85,7 +86,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "tai-khoan",
-        element: <div>Đây là trang Quản lý tài khoản (Admin)</div>
+        element: <AdminAccountPage />
       },
       {
         path: "ho-so",
