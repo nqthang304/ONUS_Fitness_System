@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from "react";
 const MOCK_USERS = [
   { id: 1, soDienThoai: "0999999999", password: "123", tenHienThi: "Quản trị hệ thống", role: "ADMIN" },
   { id: 2, soDienThoai: "0988888888", password: "123", tenHienThi: "HLV B", role: "HLV" },
-  { id: 3, soDienThoai: "0901234567", password: "123", tenHienThi: "Hội viên C", role: "HOIVIEN" }
+  { id: 3, soDienThoai: "0901234567", password: "123", tenHienThi: "Hội viên C", role: "HOIVIEN",hlv_id: 2 },
 ];
 
 const AuthContext = createContext(null);
@@ -28,13 +28,7 @@ export const AuthProvider = ({ children }) => {
     );
 
     if (foundUser) {
-      const userToSave = { 
-        id: foundUser.id, 
-        soDienThoai: foundUser.soDienThoai, 
-        tenHienThi: foundUser.tenHienThi, 
-        role: foundUser.role 
-      };
-
+      const { password, ...userToSave } = foundUser;
       localStorage.setItem("onus_user", JSON.stringify(userToSave));
       setUser(userToSave);
       setIsLoading(false);

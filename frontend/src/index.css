@@ -1,14 +1,9 @@
 @import "tailwindcss";
 
-@tailwind base;
-
-@custom-variant dark (&:is(.dark *));
-@tailwind components;
-@tailwind utilities;
 
 @theme {
-  --color-onus-blue: #1d4ed8; /* Định nghĩa màu xanh dương của ONUS */
-  --font-figtree: "Figtree", sans-serif; /* Đảm bảo font Figtree đã sẵn sàng */
+  --color-onus-blue: #1d4ed8; 
+  --font-figtree: "Figtree", sans-serif; 
 }
 
 @theme inline {

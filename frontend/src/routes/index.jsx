@@ -1,7 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { authLoader, loginLoader } from "@/loaders/auth.loaders";
-import Login from "@/pages/Login";
+import Login from "@/pages/login";
 import MainLayout from "@/components/layout/mainLayout";
+import Feed from "@/pages/Feed";
 
 export const router = createBrowserRouter([
   {
@@ -16,7 +17,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true, 
-        element: <div className="text-2xl font-bold">Chào mừng đến với Bảng tin ONUS!</div> 
+        element: <Feed />
       },
       {
         path: "theo-doi",
