@@ -6,6 +6,7 @@ import Feed from "@/pages/Feed";
 import MemberPage from "@/pages/memberPage";
 import MealSchedulePage from "@/pages/mealSchedulePage";
 import WorkoutSchedulePage from "@/pages/workoutSchedulePage";
+import TrackingHubPage from "@/pages/trackingHub";
 
 export const router = createBrowserRouter([
   {
@@ -24,7 +25,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "theo-doi",
-        element: <div>Đây là trang Theo dõi tập luyện</div>
+        element: <TrackingHubPage />
       },
       {
         path: "lich-tap",
