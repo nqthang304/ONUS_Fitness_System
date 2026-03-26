@@ -2,14 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { Dumbbell, Utensils, FileText, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
-// Mảng cấu hình các module để dễ dàng thêm/bớt sau này
 const TRACKING_MODULES = [
   {
     id: "workout",
     title: "Bài tập hôm nay",
     description: "Xem danh sách bài tập cần thực hiện",
     icon: Dumbbell,
-    path: "/lich-tap", // Đường dẫn tương ứng trong router của bạn
+    path: "/bai-tap-cua-toi",
     bgIcon: "bg-blue-100",
     colorIcon: "text-blue-600",
   },
@@ -37,13 +36,11 @@ const TrackingHubPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="p-4 w-fullmx-auto font-figtree">
-      {/* Tiêu đề trang */}
-      <div className="mb-8">
+    <div className="flex flex-col gap-3 w-full p-4">
+      <header className="flex flex-col gap-1">
         <h2 className="text-2xl font-bold text-slate-900">Theo dõi tập luyện</h2>
         <p className="text-slate-600">Quản lý bài tập và dinh dưỡng cá nhân</p>
-      </div>
-
+      </header>
       {/* Grid danh sách các thẻ chức năng */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {TRACKING_MODULES.map((module) => {

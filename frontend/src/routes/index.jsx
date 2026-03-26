@@ -7,7 +7,7 @@ import MemberPage from "@/pages/memberPage";
 import MealSchedulePage from "@/pages/mealSchedulePage";
 import WorkoutSchedulePage from "@/pages/workoutSchedulePage";
 import TrackingHubPage from "@/pages/trackingHub";
-
+import MemberWorkoutPage from "@/pages/memberWorkoutPage";
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -29,7 +29,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "lich-tap",
-        element: <div>Đây là trang Lịch tập</div>
+        element: <div>Đây là trang lịch tập</div>
       },
       {
         path: "tin-nhan",
@@ -46,6 +46,10 @@ export const router = createBrowserRouter([
       {
         path: "lich-day",
         element: <div>Đây là trang Lịch dạy</div>
+      },
+      {
+        path: "bai-tap-cua-toi",
+        element: <MemberWorkoutPage />
       },
       {
         path: "bai-tap",
