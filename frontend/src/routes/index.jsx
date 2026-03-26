@@ -3,6 +3,8 @@ import { authLoader, loginLoader } from "@/loaders/auth.loaders";
 import Login from "@/pages/login";
 import MainLayout from "@/components/layout/mainLayout";
 import Feed from "@/pages/Feed";
+import MemberPage from "@/pages/memberPage";
+import MealSchedulePage from "@/pages/mealSchedulePage";
 
 export const router = createBrowserRouter([
   {
@@ -12,11 +14,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <MainLayout />, 
+    element: <MainLayout />,
     loader: authLoader, // Chặn nếu chưa login
     children: [
       {
-        index: true, 
+        index: true,
         element: <Feed />
       },
       {
@@ -37,7 +39,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "quan-ly-hoi-vien",
-        element: <div>Đây là trang Quản lý hội viên</div>
+        element: <MemberPage />
       },
       {
         path: "lich-day",
@@ -49,7 +51,14 @@ export const router = createBrowserRouter([
       },
       {
         path: "lich-an",
-        element: <div>Đây là trang Quản lý lịch ăn</div>
+        children: [
+          { index: true, element: <MealSchedulePage /> }, // Xem của bản thân (HoiVien)
+          { path: ":memberId", element: <MealSchedulePage /> }, // Xem của từng hội viên (HLV)
+        ]
+      },
+      {
+        path: 'ket-qua',
+        element: <div>Đây là trang Quản lý kết quả tập luyện</div>
       },
       {
         path: "tai-khoan",
