@@ -28,6 +28,7 @@ const Sidebar = () => {
       { icon: Calendar, label: "Lịch dạy", path: "/lich-day" },
       { icon: Dumbbell, label: "Quản lý bài tập", path: "/bai-tap" },
       { icon: Utensils, label: "Quản lý lịch ăn", path: "/lich-an" },
+      { icon: ClipboardList, label: "Kết quả tập luyện", path: "/ket-qua" },
       { icon: MessageSquare, label: "Nhắn tin", path: "/tin-nhan" },
       { icon: Bell, label: "Thông báo", path: "/thong-bao" },
       { icon: User, label: "Hồ sơ", path: "/ho-so" },
