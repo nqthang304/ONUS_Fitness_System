@@ -55,7 +55,6 @@ const ProfilePage = () => {
   const handleChangePassword = (currentPass, newPass) => {
     console.log("Gửi API đổi mật khẩu với:", { currentPass, newPass });
     // TODO: Gọi API POST lên server
-    alert("Đổi mật khẩu thành công!");
   };
 
   if (!userData) return <div className="p-8 text-center text-slate-500">Đang tải...</div>;
