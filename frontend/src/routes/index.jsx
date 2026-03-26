@@ -11,6 +11,7 @@ import MemberWorkoutPage from "@/pages/memberWorkoutPage";
 import ResultPage from "@/pages/ResultPage";
 import MessagePage from "@/pages/messagePage";
 import NotificationPage from "@/pages/notificationPage";
+import ProfilePage from "@/pages/profilePage";
 
 export const router = createBrowserRouter([
   {
@@ -88,7 +89,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "ho-so",
-        element: <div>Đây là trang Hồ sơ cá nhân</div>
+        element: <ProfilePage />
       },
     ]
   },
