@@ -192,7 +192,7 @@ const PostCard = ({ post, onCommentClick, onUpdatePost, onDeletePost }) => {
               className="bg-onus-blue hover:bg-blue-700 text-white rounded-xl px-8"
               disabled={!editContent.trim() || editContent === post.content}
             >
-              Lưu thay đổi
+              Xác nhận
             </Button>
           </DialogFooter>
         </DialogContent>
