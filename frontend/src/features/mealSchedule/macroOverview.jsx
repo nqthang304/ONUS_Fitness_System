@@ -8,16 +8,16 @@ export const MacroOverview = ({ memberId, isEditing, totals, members }) => {
   const currentMemberName = members.find(m => m.id === activeMemberId)?.name || "Nguyễn Văn An";
 
   return (
-    <Card className="flex flex-row w-full p-6 rounded-2xl border-slate-100 shadow-sm mb-6 flex flex-wrap gap-6 items-end font-figtree">
-      <div className="flex-1 min-w-[200px]">
+    <Card className="flex flex-row justify-between align-items w-full p-6 rounded-2xl border-slate-100 shadow-sm mb-6 flex flex-wrap gap-6 items-end font-figtree">
+      <div className="w-[200px] min-w-[200px] max-w-[200px] shrink-0">
         <label className="text-xs font-semibold text-slate-500 mb-2 block">Hội viên</label>
         
         {isEditing ? (
            // 2. Thêm thuộc tính disabled chuẩn của React
            <Select value={activeMemberId} disabled>
              {/* disabled:opacity-100 giúp chữ không bị mờ đi khi bị khóa */}
-             <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-none disabled:opacity-100 disabled:cursor-not-allowed text-slate-900 font-medium">
-                <SelectValue placeholder={currentMemberName} />
+           <SelectTrigger className="h-11 w-[200px] min-w-[200px] max-w-[200px] rounded-xl bg-slate-50 border-none disabled:opacity-100 disabled:cursor-not-allowed text-slate-900 font-medium">
+             <SelectValue placeholder={currentMemberName} className="truncate" />
              </SelectTrigger>
              
              {/* 3. Phải có SelectContent thì SelectValue mới biết đường lấy tên hiển thị */}
@@ -28,7 +28,7 @@ export const MacroOverview = ({ memberId, isEditing, totals, members }) => {
              </SelectContent>
            </Select>
         ) : (
-          <div className="h-11 px-4 flex items-center bg-slate-50 rounded-xl text-slate-700 font-medium">
+          <div className="h-11 w-[200px] min-w-[200px] max-w-[200px] px-4 flex items-center bg-slate-50 rounded-xl text-slate-700 font-medium truncate">
             {currentMemberName}
           </div>
         )}

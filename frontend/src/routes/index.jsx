@@ -5,6 +5,7 @@ import MainLayout from "@/components/layout/mainLayout";
 import Feed from "@/pages/Feed";
 import MemberPage from "@/pages/memberPage";
 import MealSchedulePage from "@/pages/mealSchedulePage";
+import WorkoutSchedulePage from "@/pages/workoutSchedulePage";
 
 export const router = createBrowserRouter([
   {
@@ -47,7 +48,16 @@ export const router = createBrowserRouter([
       },
       {
         path: "bai-tap",
-        element: <div>Đây là trang Quản lý bài tập</div>
+        children: [
+          {
+            index: true,
+            element: <WorkoutSchedulePage />
+          }, 
+          {
+            path: ":memberId",
+            element: <WorkoutSchedulePage />
+          }
+        ]
       },
       {
         path: "lich-an",
