@@ -1,6 +1,5 @@
 import { createContext, useContext, useState } from "react";
-
-// 1. Cập nhật DB giả: Tất cả đều dùng Số điện thoại
+// Mock dữ liệu người dùng (thay thế cho API thực tế)
 const MOCK_USERS = [
   { id: 1, soDienThoai: "0999999999", password: "123", tenHienThi: "Quản trị hệ thống", role: "ADMIN" },
   { id: 2, soDienThoai: "0988888888", password: "123", tenHienThi: "HLV B", role: "HLV" },
@@ -17,7 +16,6 @@ export const AuthProvider = ({ children }) => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // 2. Đổi tham số nhận vào thành soDienThoai cho chuẩn ngữ nghĩa
   const login = async (soDienThoai, password) => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 800));
