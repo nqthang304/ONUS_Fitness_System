@@ -1,74 +1,17 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "@/providers/auth.providers";
+import { useMemo } from "react";
+import { useNotifications } from "@/providers/notification.providers";
 import { Card } from "@/components/ui/card";
 import { Info, User } from "lucide-react";
 
-// --- MOCK DATABASE ---
-const DB_THONG_BAO = [
-  { 
-    Id: 1, 
-    TieuDe: "Thông báo bài viết mới", 
-    NoiDung: "Admin vừa đăng một bài viết mới. Hãy cùng đọc và thảo luận nhé!", 
-    LoaiThongBao: "SYSTEM", // Loại hệ thống
-    NgayTao: "2023-08-30 09:00" 
-  },
-  { 
-    Id: 2, 
-    TieuDe: "Nhắc nhở lịch tập", 
-    NoiDung: "Bạn có lịch tập vào lúc 16:00 hôm nay với HLV Trần B.", 
-    LoaiThongBao: "REMINDER", 
-    NgayTao: "2023-11-20 08:00" 
-  },
-];
-
-const DB_CHI_TIET_THONG_BAO = [
-  { Id: 101, Id_NguoiNhan: "1", Id_ThongBao: 1, DaXem: false },
-  { Id: 102, Id_NguoiNhan: "2", Id_ThongBao: 1, DaXem: false },
-  { Id: 103, Id_NguoiNhan: "2", Id_ThongBao: 2, DaXem: false },
-  { Id: 104, Id_NguoiNhan: "3", Id_ThongBao: 2, DaXem: false },
-];
-
 const NotificationPage = () => {
-  const { user } = useAuth();
-  const currentUserId = String(user?.id || "");
+  const { notifications, markAsRead } = useNotifications();
 
-  const [notifications, setNotifications] = useState([]);
-
-  // Hàm mô phỏng việc gọi API để Lấy danh sách thông báo và JOIN 2 bảng
-  useEffect(() => {
-    // 1. Lấy các chi tiết thông báo của user hiện tại
-    const myDetails = DB_CHI_TIET_THONG_BAO.filter(ct => ct.Id_NguoiNhan === currentUserId);
-
-    // 2. Map (Join) với bảng ThongBao gốc để lấy Tiêu đề, Nội dung...
-    const combinedData = myDetails.map(detail => {
-      const thongBaoGoc = DB_THONG_BAO.find(tb => tb.Id === detail.Id_ThongBao);
-      if (!thongBaoGoc) return null;
-      return {
-        ...thongBaoGoc,          // Chứa TieuDe, NoiDung, LoaiThongBao, NgayTao
-        ChiTietId: detail.Id,    // ID của bảng chi tiết (dùng để update DaXem)
-        DaXem: detail.DaXem      // Trạng thái đã xem
-      };
-    }).filter(Boolean);
-
-    // Sắp xếp ngày mới nhất lên đầu
-    combinedData.sort((a, b) => new Date(b.NgayTao) - new Date(a.NgayTao));
-    setNotifications(combinedData);
-  }, [currentUserId]);
+  const displayNotifications = useMemo(() => notifications, [notifications]);
 
   // Xử lý sự kiện click để đánh dấu đã đọc
   const handleMarkAsRead = (chiTietId, daXemHienTai) => {
-    // Nếu đã xem rồi thì không làm gì cả
     if (daXemHienTai) return;
-
-    // Cập nhật state nội bộ (UI update)
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.ChiTietId === chiTietId ? { ...notif, DaXem: true } : notif
-      )
-    );
-
-    // TODO: Gọi API xuống Backend để update cột DaXem trong bảng ChiTietThongBao thành True
-    // fetch(`/api/thong-bao/chi-tiet/${chiTietId}/da-xem`, { method: 'PUT' })
+    markAsRead(chiTietId);
   };
 
   // Render Icon và Nguồn gửi dựa theo loại thông báo
@@ -97,8 +40,8 @@ const NotificationPage = () => {
 
       {/* List */}
       <div className="space-y-3">
-        {notifications.length > 0 ? (
-          notifications.map((notif) => {
+        {displayNotifications.length > 0 ? (
+          displayNotifications.map((notif) => {
             const uiConfig = getNotificationUI(notif.LoaiThongBao);
 
             return (

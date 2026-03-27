@@ -1,50 +1,86 @@
 import { createContext, useContext, useState, useMemo } from "react";
+import { useAuth } from "@/providers/auth.providers";
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
-  // 1. Danh sách thông báo (Dữ liệu Mock khớp với bảng ThongBao)
-  const [notifications, setNotifications] = useState([
-    { 
-        id: 1, 
-        tieuDe: "Bình luận mới", 
-        noiDung: "HLV Trần B đã bình luận về bài tập của bạn.", 
-        daXem: false, // Trạng thái Unseen
-        thoiGian: "10:00 25/03"
+  const { user } = useAuth();
+  const currentUserId = String(user?.id || "");
+
+  const [thongBao] = useState([
+    {
+      Id: 1,
+      TieuDe: "Thông báo bài viết mới",
+      NoiDung: "Admin vừa đăng một bài viết mới. Hãy cùng đọc và thảo luận nhé!",
+      LoaiThongBao: "SYSTEM",
+      NgayTao: "2026-03-25T10:00:00",
     },
-    { 
-        id: 2, 
-        tieuDe: "Cập nhật thực đơn", 
-        noiDung: "Thực đơn mới cho tuần này đã sẵn sàng.", 
-        daXem: true,  // Trạng thái Seen
-        thoiGian: "08:30 24/03"
+    {
+      Id: 2,
+      TieuDe: "Nhắc nhở lịch tập",
+      NoiDung: "Bạn có lịch tập vào lúc 16:00 hôm nay với HLV Trần B.",
+      LoaiThongBao: "REMINDER",
+      NgayTao: "2026-03-24T08:30:00",
     },
   ]);
 
-  // 2. Tính số lượng thông báo "Chưa xem" (Unseen)
-  // Hiển thị con số này trên biểu tượng Chuông ở Navbar
-  const unreadCount = useMemo(() => 
-    notifications.filter(n => !n.daXem).length, 
-  [notifications]);
+  const [chiTietThongBao, setChiTietThongBao] = useState([
+    { Id: 101, Id_NguoiNhan: "1", Id_ThongBao: 1, DaXem: false },
+    { Id: 102, Id_NguoiNhan: "2", Id_ThongBao: 1, DaXem: false },
+    { Id: 103, Id_NguoiNhan: "4", Id_ThongBao: 2, DaXem: false },
+    { Id: 104, Id_NguoiNhan: "3", Id_ThongBao: 2, DaXem: false },
+  ]);
 
-  // 3. Hàm đánh dấu một thông báo là đã xem
-  const markAsRead = (id) => {
-    setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, daXem: true } : n)
+  const notifications = useMemo(() => {
+    if (!currentUserId) return [];
+
+    return chiTietThongBao
+      .filter((detail) => String(detail.Id_NguoiNhan) === currentUserId)
+      .map((detail) => {
+        const thongBaoGoc = thongBao.find((tb) => tb.Id === detail.Id_ThongBao);
+        if (!thongBaoGoc) return null;
+
+        return {
+          ChiTietId: detail.Id,
+          DaXem: detail.DaXem,
+          ...thongBaoGoc,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => new Date(b.NgayTao) - new Date(a.NgayTao));
+  }, [chiTietThongBao, currentUserId, thongBao]);
+
+  const unreadCount = useMemo(
+    () => notifications.filter((n) => !n.DaXem).length,
+    [notifications]
+  );
+
+  const markAsRead = (chiTietId) => {
+    setChiTietThongBao((prev) =>
+      prev.map((detail) =>
+        detail.Id === chiTietId && String(detail.Id_NguoiNhan) === currentUserId
+          ? { ...detail, DaXem: true }
+          : detail
+      )
     );
   };
 
-  // 4. Hàm đánh dấu tất cả là đã xem (Dùng cho nút "Đọc tất cả")
   const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, daXem: true })));
+    setChiTietThongBao((prev) =>
+      prev.map((detail) =>
+        String(detail.Id_NguoiNhan) === currentUserId
+          ? { ...detail, DaXem: true }
+          : detail
+      )
+    );
   };
 
   return (
     <NotificationContext.Provider value={{ 
-        notifications, 
-        unreadCount, 
-        markAsRead, 
-        markAllAsRead 
+        notifications,
+        unreadCount,
+        markAsRead,
+        markAllAsRead
     }}>
       {children}
     </NotificationContext.Provider>

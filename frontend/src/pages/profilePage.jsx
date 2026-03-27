@@ -8,7 +8,6 @@ import { DB_HOI_VIEN } from "@/features/trainerSchedule/mockData";
 import { ProfileInfo } from "@/features/profile/profileInfo";
 import { PasswordModal } from "@/features/profile/passwordModal";
 
-// --- MOCK DATABASE ---
 const MOCK_DB_USERS = [
   { id: "1", name: "Quản trị hệ thống", phone: "0999999999", dob: "1990-01-01", gender: "Nam" },
   { id: "2", name: "HLV B", phone: "0988888888", dob: "1993-06-12", gender: "Nam" },
@@ -17,7 +16,7 @@ const MOCK_DB_USERS = [
 ];
 
 const ProfilePage = () => {
-  const { user } = useAuth(); // Lấy thông tin user đang đăng nhập
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { memberId } = useParams();
   const currentUserId = String(user?.id || "");
@@ -29,7 +28,6 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
-  // Giả lập Fetch dữ liệu cá nhân
   useEffect(() => {
     if (memberId && user?.role !== "HLV") {
       navigate("/ho-so", { replace: true });
@@ -78,24 +76,19 @@ const ProfilePage = () => {
     }
   }, [isEditing, isOwnerProfile]);
 
-  // Xử lý lưu thông tin chung
   const handleSaveProfile = (updatedData) => {
     console.log("Dữ liệu cần gửi lên API cập nhật Profile:", updatedData);
-    // TODO: Gọi API PUT/PATCH lên server
-    setUserData({ ...userData, ...updatedData }); // Cập nhật state nội bộ cho UI nhảy số
+    setUserData({ ...userData, ...updatedData });
   };
 
-  // Xử lý đổi mật khẩu
   const handleChangePassword = (currentPass, newPass) => {
     console.log("Gửi API đổi mật khẩu với:", { currentPass, newPass });
-    // TODO: Gọi API POST lên server
   };
 
   if (!userData) return <div className="p-8 text-center text-slate-500">Đang tải...</div>;
 
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto font-figtree w-full">
-      {/* Tiêu đề trang */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900 mb-1">
           {isOwnerProfile ? "Hồ sơ cá nhân" : "Hồ sơ hội viên"}
@@ -105,7 +98,6 @@ const ProfilePage = () => {
         </p>
       </div>
 
-      {/* Component 1: Khối thông tin chung (Có form Xem/Sửa) */}
       <ProfileInfo
         userData={userData}
         onSave={handleSaveProfile}
@@ -114,7 +106,6 @@ const ProfilePage = () => {
         canEdit={isOwnerProfile}
       />
 
-      {/* Component 2: Khối bảo mật (Đổi mật khẩu) */}
       {isOwnerProfile && !isEditing && (
         <Card className="p-6 md:p-8 rounded-2xl border-slate-100 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -131,7 +122,6 @@ const ProfilePage = () => {
         </Card>
       )}
 
-      {/* Modal nhập mật khẩu */}
       <PasswordModal 
         isOpen={isPasswordModalOpen} 
         onOpenChange={setIsPasswordModalOpen} 

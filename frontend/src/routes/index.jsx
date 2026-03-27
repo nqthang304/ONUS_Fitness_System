@@ -14,7 +14,7 @@ import NotificationPage from "@/pages/notificationPage";
 import ProfilePage from "@/pages/profilePage";
 import AdminAccountPage from "@/pages/adminAccountPage";
 import TrainerSchedulePage from "@/pages/trainerSchedulePage";
-
+import MemberSchedulePage from "@/pages/memberSchedulePage";
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -36,7 +36,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "lich-tap",
-        element: <div>Đây là trang lịch tập</div>
+        element: <MemberSchedulePage />
       },
       {
         path: "tin-nhan",
