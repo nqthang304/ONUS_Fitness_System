@@ -82,7 +82,7 @@ export const AddScheduleModal = ({ isOpen, onClose, onSave, members, existingSch
           <div>
             <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Tên hội viên</label>
             <Select value={formData.memberId} onValueChange={v => setFormData({...formData, memberId: v})}>
-              <SelectTrigger className="h-11 bg-white rounded-xl"><SelectValue placeholder="Chọn hội viên..." /></SelectTrigger>
+              <SelectTrigger className="h-11 w-full bg-white rounded-xl"><SelectValue placeholder="Chọn hội viên..." /></SelectTrigger>
               <SelectContent>
                 {members.map(m => (
                   <SelectItem key={m.Id_TaiKhoan} value={String(m.Id_TaiKhoan)}>{m.HoTen}</SelectItem>
@@ -94,7 +94,7 @@ export const AddScheduleModal = ({ isOpen, onClose, onSave, members, existingSch
           <div>
             <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Thứ</label>
             <Select value={formData.day} onValueChange={v => setFormData({...formData, day: v})}>
-              <SelectTrigger className="h-11 bg-white rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-11 w-full bg-white rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="2">Thứ 2</SelectItem>
                 <SelectItem value="3">Thứ 3</SelectItem>
