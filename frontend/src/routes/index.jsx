@@ -13,6 +13,7 @@ import MessagePage from "@/pages/messagePage";
 import NotificationPage from "@/pages/notificationPage";
 import ProfilePage from "@/pages/profilePage";
 import AdminAccountPage from "@/pages/adminAccountPage";
+import TrainerSchedulePage from "@/pages/trainerSchedulePage";
 
 export const router = createBrowserRouter([
   {
@@ -51,7 +52,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "lich-day",
-        element: <div>Đây là trang Lịch dạy</div>
+        element: <TrainerSchedulePage />
       },
       {
         path: "bai-tap-cua-toi",

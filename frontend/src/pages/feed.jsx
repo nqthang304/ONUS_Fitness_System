@@ -38,11 +38,11 @@ const Feed = () => {
     if (post.role === "ADMIN") return true; // Ai cũng thấy bài Admin
 
     if (role === "HLV") {
-      return post.hlv_id === user.id; // HLV chỉ thấy bài của mình
+      return String(post.hlv_id) === String(user.id) || String(post.author_id) === String(user.id); // HLV thấy bài của mình
     }
 
     if (role === "HOIVIEN") {
-      return post.hlv_id === user.hlv_id;
+      return String(post.hlv_id) === String(user.hlv_id);
     }
     return false;
   });
