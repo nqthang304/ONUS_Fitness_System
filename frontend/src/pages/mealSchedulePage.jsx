@@ -10,8 +10,8 @@ import { MealList } from "@/features/mealSchedule/MealList";
 import { MealModals } from "@/features/mealSchedule/MealModals";
 
 const MOCK_MEMBERS = [
-  { id: "101", name: "Nguyễn Văn An" },
-  { id: "102", name: "Trần Bình" },
+  { id: "3", name: "Hội viên C" },
+  { id: "4", name: "Nguyễn Văn A" },
 ];
 
 const INITIAL_MEALS = {

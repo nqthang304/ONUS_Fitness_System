@@ -9,9 +9,8 @@ const MemberPage = () => {
 
     // Dữ liệu giả lập
     const [members] = useState([
-        { id: 1, name: "Nguyễn Văn A", phone: "0901234567" },
-        { id: 2, name: "Trần B", phone: "0909876543" },
-        { id: 3, name: "Trần Thị C", phone: "0912345678" },
+        { id: 3, name: "Hội viên C", phone: "0901234567" },
+        { id: 4, name: "Nguyễn Văn A", phone: "0912345678" },
     ]);
 
     // Logic lọc dữ liệu

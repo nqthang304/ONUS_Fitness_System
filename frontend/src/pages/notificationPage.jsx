@@ -7,8 +7,8 @@ import { Info, User } from "lucide-react";
 const DB_THONG_BAO = [
   { 
     Id: 1, 
-    TieuDe: "Thông báo nghỉ lễ", 
-    NoiDung: "Phòng tập sẽ đóng cửa vào ngày 02/09. Chúc quý hội viên nghỉ lễ vui vẻ!", 
+    TieuDe: "Thông báo bài viết mới", 
+    NoiDung: "Admin vừa đăng một bài viết mới. Hãy cùng đọc và thảo luận nhé!", 
     LoaiThongBao: "SYSTEM", // Loại hệ thống
     NgayTao: "2023-08-30 09:00" 
   },
@@ -16,7 +16,7 @@ const DB_THONG_BAO = [
     Id: 2, 
     TieuDe: "Nhắc nhở lịch tập", 
     NoiDung: "Bạn có lịch tập vào lúc 16:00 hôm nay với HLV Trần B.", 
-    LoaiThongBao: "REMINDER", // Loại nhắc nhở cá nhân
+    LoaiThongBao: "REMINDER", 
     NgayTao: "2023-11-20 08:00" 
   },
 ];

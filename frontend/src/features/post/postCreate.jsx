@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea"; // npx shadcn@latest add textarea
-import { Image, SendHorizontal, X } from "lucide-react";
+import { SendHorizontal, X } from "lucide-react";
 
 const PostCreate = ({ onPostCreated }) => {
   const { user, role } = useAuth();
@@ -55,14 +55,7 @@ const PostCreate = ({ onPostCreated }) => {
             />
 
             {isExpanding && (
-              <div className="flex items-center justify-between animate-in fade-in slide-in-from-top-2">
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="sm" className="text-slate-500 gap-2 hover:bg-blue-50 hover:text-onus-blue">
-                    <Image className="w-5 h-5" />
-                    <span className="text-xs font-semibold">Ảnh/Video</span>
-                  </Button>
-                </div>
-                
+              <div className="flex items-center justify-end flex-wrap animate-in fade-in slide-in-from-top-2">                
                 <div className="flex gap-2">
                   <Button 
                     variant="ghost" 

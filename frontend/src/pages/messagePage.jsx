@@ -30,7 +30,7 @@ const MOCK_CHAT_USERS = [
     avatarColor: "bg-blue-500",
   },
   {
-    id: "101",
+    id: "4",
     name: "Nguyễn Văn A",
     role: "HOIVIEN",
     hlv_id: "2",
@@ -47,9 +47,9 @@ const MOCK_MESSAGES = {
     { id: "m2", senderId: "3", text: "Dạ hôm nay tập chân ạ.", time: "10:05" },
     { id: "m3", senderId: "2", text: "Nhớ tập đúng giờ nhé em!", time: "10:30" },
   ],
-  [threadKey("2", "101")]: [
+  [threadKey("2", "4")]: [
     { id: "m4", senderId: "2", text: "Ngày mai tăng tạ nhé.", time: "09:00" },
-    { id: "m5", senderId: "101", text: "Dạ vâng ạ.", time: "09:05" },
+    { id: "m5", senderId: "4", text: "Dạ vâng ạ.", time: "09:05" },
   ],
   [threadKey("1", "2")]: [
     { id: "m6", senderId: "1", text: "Nhắc HLV cập nhật kết quả tuần này.", time: "08:40" },
@@ -59,7 +59,7 @@ const MOCK_MESSAGES = {
 
 const MOCK_UNREAD_BY_THREAD = {
   [threadKey("2", "3")]: { "2": 0, "3": 1 },
-  [threadKey("2", "101")]: { "2": 0, "101": 1 },
+  [threadKey("2", "4")]: { "2": 0, "4": 1 },
   [threadKey("1", "2")]: { "1": 0, "2": 1 },
 };
 

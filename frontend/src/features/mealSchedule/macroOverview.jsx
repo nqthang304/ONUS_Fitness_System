@@ -4,8 +4,8 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 
 export const MacroOverview = ({ memberId, isEditing, totals, members }) => {
   // Lấy ID hiện tại (phòng trường hợp Hội viên vào xem không có ID trên URL thì lấy mặc định)
-  const activeMemberId = memberId || "101";
-  const currentMemberName = members.find(m => m.id === activeMemberId)?.name || "Nguyễn Văn An";
+  const activeMemberId = memberId || "3";
+  const currentMemberName = members.find(m => m.id === activeMemberId)?.name || "Hội viên C";
 
   return (
     <Card className="flex flex-row justify-between align-items w-full p-6 rounded-2xl border-slate-100 shadow-sm mb-6 flex flex-wrap gap-6 items-end font-figtree">

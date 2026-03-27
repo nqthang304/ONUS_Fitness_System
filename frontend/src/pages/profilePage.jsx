@@ -48,7 +48,6 @@ const ProfilePage = () => {
     console.log("Dữ liệu cần gửi lên API cập nhật Profile:", updatedData);
     // TODO: Gọi API PUT/PATCH lên server
     setUserData({ ...userData, ...updatedData }); // Cập nhật state nội bộ cho UI nhảy số
-    alert("Cập nhật thông tin thành công!");
   };
 
   // Xử lý đổi mật khẩu

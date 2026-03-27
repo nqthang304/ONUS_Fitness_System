@@ -1,12 +1,13 @@
 export const MOCK_MEMBERS = [
-  { id: "101", name: "Nguyễn Văn A" },
-  { id: "102", name: "Trần B" },
+  { id: "3", name: "Hội viên C" },
+  { id: "4", name: "Nguyễn Văn A" },
 ];
 
 // Bảng BaiTap
 export const MOCK_DAYS = [
-  { id: 1, id_hoivien: "101", thu_tu_ngay_tap: 1 }, // 1 = DAY A
-  { id: 2, id_hoivien: "101", thu_tu_ngay_tap: 2 }, // 2 = DAY B
+  { id: 1, id_hoivien: "3", thu_tu_ngay_tap: 1 }, // 1 = DAY A
+  { id: 2, id_hoivien: "3", thu_tu_ngay_tap: 2 }, // 2 = DAY B
+  { id: 3, id_hoivien: "4", thu_tu_ngay_tap: 1 },
 ];
 
 // Bảng ChiTietBaiTap

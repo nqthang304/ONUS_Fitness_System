@@ -11,23 +11,20 @@ import { ResultModals } from "@/features/results//ResultModals";
 
 // Dữ liệu mẫu (Giả lập CSDL)
 const MOCK_MEMBERS = [
-  { id: "101", name: "Nguyễn Văn A", age: 24, gender: "Nam" },
-  { id: "102", name: "Trần Bình", age: 28, gender: "Nam" },
   { id: "3", name: "Hội viên C", age: 22, gender: "Nữ" },
+  { id: "4", name: "Nguyễn Văn A", age: 24, gender: "Nam" },
 ];
 
 const INITIAL_RESULTS = [
-  { Id: 1, Id_HoiVien: "101", CanNang: 70, ChieuCao: 175, VongBung: 80, VongMong: 95, BMI: 22.9, PhanTramMo: 18, PhamTramCo: 40, TyLeTraoDoiChat: 1650, NgayTao: "2026-03-20" },
-  { Id: 2, Id_HoiVien: "101", CanNang: 71, ChieuCao: 175, VongBung: 81, VongMong: 95, BMI: 23.2, PhanTramMo: 18.7, PhamTramCo: 39.6, TyLeTraoDoiChat: 1660, NgayTao: "2026-02-16" },
-  { Id: 3, Id_HoiVien: "101", CanNang: 72, ChieuCao: 175, VongBung: 82, VongMong: 96, BMI: 23.5, PhanTramMo: 19, PhamTramCo: 39, TyLeTraoDoiChat: 1670, NgayTao: "2026-01-15" },
+  { Id: 1, Id_HoiVien: "4", CanNang: 70, ChieuCao: 175, VongBung: 80, VongMong: 95, BMI: 22.9, PhanTramMo: 18, PhamTramCo: 40, TyLeTraoDoiChat: 1650, NgayTao: "2026-03-20" },
+  { Id: 2, Id_HoiVien: "4", CanNang: 71, ChieuCao: 175, VongBung: 81, VongMong: 95, BMI: 23.2, PhanTramMo: 18.7, PhamTramCo: 39.6, TyLeTraoDoiChat: 1660, NgayTao: "2026-02-16" },
+  { Id: 3, Id_HoiVien: "4", CanNang: 72, ChieuCao: 175, VongBung: 82, VongMong: 96, BMI: 23.5, PhanTramMo: 19, PhamTramCo: 39, TyLeTraoDoiChat: 1670, NgayTao: "2026-01-15" },
 
-  { Id: 4, Id_HoiVien: "102", CanNang: 79, ChieuCao: 178, VongBung: 88, VongMong: 100, BMI: 24.9, PhanTramMo: 21.5, PhamTramCo: 37.4, TyLeTraoDoiChat: 1740, NgayTao: "2026-03-22" },
-  { Id: 5, Id_HoiVien: "102", CanNang: 80, ChieuCao: 178, VongBung: 89, VongMong: 100, BMI: 25.2, PhanTramMo: 22.1, PhamTramCo: 36.9, TyLeTraoDoiChat: 1755, NgayTao: "2026-02-20" },
-  { Id: 6, Id_HoiVien: "102", CanNang: 81, ChieuCao: 178, VongBung: 90, VongMong: 101, BMI: 25.6, PhanTramMo: 22.8, PhamTramCo: 36.2, TyLeTraoDoiChat: 1770, NgayTao: "2026-01-18" },
+  { Id: 4, Id_HoiVien: "3", CanNang: 54, ChieuCao: 165, VongBung: 70, VongMong: 93, BMI: 19.8, PhanTramMo: 22, PhamTramCo: 41.3, TyLeTraoDoiChat: 1334, NgayTao: "2026-03-24" },
+  { Id: 5, Id_HoiVien: "3", CanNang: 55, ChieuCao: 165, VongBung: 71, VongMong: 94, BMI: 20.2, PhanTramMo: 22.8, PhamTramCo: 40.6, TyLeTraoDoiChat: 1342, NgayTao: "2026-02-24" },
+  { Id: 6, Id_HoiVien: "3", CanNang: 56, ChieuCao: 165, VongBung: 73, VongMong: 95, BMI: 20.6, PhanTramMo: 23.5, PhamTramCo: 39.9, TyLeTraoDoiChat: 1350, NgayTao: "2026-01-24" },
 
-  { Id: 7, Id_HoiVien: "3", CanNang: 54, ChieuCao: 165, VongBung: 70, VongMong: 93, BMI: 19.8, PhanTramMo: 22, PhamTramCo: 41.3, TyLeTraoDoiChat: 1334, NgayTao: "2026-03-24" },
-  { Id: 8, Id_HoiVien: "3", CanNang: 55, ChieuCao: 165, VongBung: 71, VongMong: 94, BMI: 20.2, PhanTramMo: 22.8, PhamTramCo: 40.6, TyLeTraoDoiChat: 1342, NgayTao: "2026-02-24" },
-  { Id: 9, Id_HoiVien: "3", CanNang: 56, ChieuCao: 165, VongBung: 73, VongMong: 95, BMI: 20.6, PhanTramMo: 23.5, PhamTramCo: 39.9, TyLeTraoDoiChat: 1350, NgayTao: "2026-01-24" },
+  { Id: 7, Id_HoiVien: "3", CanNang: 53.5, ChieuCao: 165, VongBung: 69, VongMong: 92, BMI: 19.6, PhanTramMo: 21.7, PhamTramCo: 41.7, TyLeTraoDoiChat: 1326, NgayTao: "2025-12-24" },
 ];
 
 const ResultPage = () => {
