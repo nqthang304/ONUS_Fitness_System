@@ -35,7 +35,7 @@ export const WorkoutModals = ({ deleteData, setDeleteData, onConfirmDeleteDay, o
   return (
     <AlertDialog open={deleteData.isOpen} onOpenChange={(open) => !open && closeDeleteModal()}>
       <AlertDialogContent className="max-w-[400px] rounded-2xl font-figtree p-5 gap-4">
-        <AlertDialogHeader className="items-center text-center">
+        <AlertDialogHeader className="items-center text-center sm:group-data-[size=default]/alert-dialog-content:place-items-center sm:group-data-[size=default]/alert-dialog-content:text-center">
           <AlertDialogTitle className="text-center text-lg font-medium leading-snug">{title}</AlertDialogTitle>
         </AlertDialogHeader>
 

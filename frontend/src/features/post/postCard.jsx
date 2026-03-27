@@ -200,7 +200,7 @@ const PostCard = ({ post, onCommentClick, onUpdatePost, onDeletePost }) => {
       {/* Popup xác nhận xóa bài viết (AlertDialog) */}
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <AlertDialogContent className="rounded-2xl max-w-[400px] font-figtree p-5 gap-4">
-          <AlertDialogHeader className="items-center text-center">
+          <AlertDialogHeader className="items-center text-center sm:group-data-[size=default]/alert-dialog-content:place-items-center sm:group-data-[size=default]/alert-dialog-content:text-center">
             <AlertDialogTitle className="text-center text-lg font-medium leading-snug">Xác nhận xóa bài viết?</AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex flex-row w-full items-center gap-3 mt-4 sm:space-x-0">

@@ -37,7 +37,7 @@ export const MealModals = ({
 
             <AlertDialog open={deleteData.isOpen} onOpenChange={(open) => !open && setDeleteData({ isOpen: false, mealType: "", dishId: null })}>
                 <AlertDialogContent className="max-w-[400px] rounded-2xl font-figtree p-5 gap-4">
-                    <AlertDialogHeader className="items-center text-center">
+                    <AlertDialogHeader className="items-center text-center sm:group-data-[size=default]/alert-dialog-content:place-items-center sm:group-data-[size=default]/alert-dialog-content:text-center">
                         <AlertDialogTitle className="text-center text-lg font-medium leading-snug">Xác nhận xóa món ăn</AlertDialogTitle>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="flex flex-row w-full items-center gap-3 mt-4 sm:space-x-0">
