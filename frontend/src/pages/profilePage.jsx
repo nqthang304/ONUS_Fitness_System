@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/providers/auth.providers";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { DB_HOI_VIEN } from "@/features/trainerSchedule/mockData";
 
 import { ProfileInfo } from "@/features/profile/profileInfo";
 import { PasswordModal } from "@/features/profile/passwordModal";
@@ -11,11 +13,17 @@ const MOCK_DB_USERS = [
   { id: "1", name: "Quản trị hệ thống", phone: "0999999999", dob: "1990-01-01", gender: "Nam" },
   { id: "2", name: "HLV B", phone: "0988888888", dob: "1993-06-12", gender: "Nam" },
   { id: "3", name: "Hội viên C", phone: "0901234567", dob: "2001-11-05", gender: "Nữ" },
+  { id: "4", name: "Nguyễn Văn A", phone: "0912345678", dob: "2000-08-20", gender: "Nam" },
 ];
 
 const ProfilePage = () => {
   const { user } = useAuth(); // Lấy thông tin user đang đăng nhập
+  const navigate = useNavigate();
+  const { memberId } = useParams();
   const currentUserId = String(user?.id || "");
+  const isTrainerViewingMember = user?.role === "HLV" && !!memberId;
+  const targetUserId = isTrainerViewingMember ? String(memberId) : currentUserId;
+  const isOwnerProfile = targetUserId === currentUserId;
 
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -23,13 +31,34 @@ const ProfilePage = () => {
 
   // Giả lập Fetch dữ liệu cá nhân
   useEffect(() => {
-    const data = MOCK_DB_USERS.find(u => u.id === currentUserId);
+    if (memberId && user?.role !== "HLV") {
+      navigate("/ho-so", { replace: true });
+      return;
+    }
+
+    if (user?.role === "HOIVIEN" && memberId && String(memberId) !== currentUserId) {
+      navigate("/ho-so", { replace: true });
+      return;
+    }
+
+    if (user?.role === "HLV" && memberId) {
+      const canViewMember = DB_HOI_VIEN.some(
+        (member) => String(member.Id_TaiKhoan) === String(memberId) && String(member.Id_HLV) === currentUserId
+      );
+
+      if (!canViewMember) {
+        navigate("/quan-ly-hoi-vien", { replace: true });
+        return;
+      }
+    }
+
+    const data = MOCK_DB_USERS.find(u => u.id === targetUserId);
     if (data) {
       setUserData(data);
       return;
     }
 
-    if (user) {
+    if (!memberId && user) {
       setUserData({
         id: String(user.id),
         name: user.tenHienThi || "Người dùng",
@@ -41,7 +70,13 @@ const ProfilePage = () => {
     }
 
     setUserData(null);
-  }, [currentUserId, user]);
+  }, [currentUserId, memberId, navigate, targetUserId, user]);
+
+  useEffect(() => {
+    if (!isOwnerProfile && isEditing) {
+      setIsEditing(false);
+    }
+  }, [isEditing, isOwnerProfile]);
 
   // Xử lý lưu thông tin chung
   const handleSaveProfile = (updatedData) => {
@@ -62,15 +97,25 @@ const ProfilePage = () => {
     <div className="p-4 md:p-8 max-w-4xl mx-auto font-figtree w-full">
       {/* Tiêu đề trang */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 mb-1">Hồ sơ cá nhân</h1>
-        <p className="text-slate-500 text-sm">Quản lý thông tin cá nhân và bảo mật</p>
+        <h1 className="text-2xl font-bold text-slate-900 mb-1">
+          {isOwnerProfile ? "Hồ sơ cá nhân" : "Hồ sơ hội viên"}
+        </h1>
+        <p className="text-slate-500 text-sm">
+          {isOwnerProfile ? "Quản lý thông tin cá nhân và bảo mật" : "Xem thông tin hồ sơ hội viên"}
+        </p>
       </div>
 
       {/* Component 1: Khối thông tin chung (Có form Xem/Sửa) */}
-      <ProfileInfo userData={userData} onSave={handleSaveProfile} isEditing={isEditing} setIsEditing={setIsEditing} />
+      <ProfileInfo
+        userData={userData}
+        onSave={handleSaveProfile}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        canEdit={isOwnerProfile}
+      />
 
       {/* Component 2: Khối bảo mật (Đổi mật khẩu) */}
-      {!isEditing && (
+      {isOwnerProfile && !isEditing && (
         <Card className="p-6 md:p-8 rounded-2xl border-slate-100 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h3 className="font-bold text-lg text-slate-900">Bảo mật</h3>

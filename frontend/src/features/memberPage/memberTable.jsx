@@ -27,7 +27,7 @@ const MemberTable = ({ data, onAction }) => {
                 <ActionButton icon={<Utensils />} label="Lịch ăn" color="text-orange-600 bg-orange-50" onClick={() => onAction(member.id, 'lich-an')} />
                 <ActionButton icon={<BookOpen />} label="Bài tập" color="text-green-600 bg-green-50" onClick={() => onAction(member.id, 'bai-tap')} />
 
-                <Button variant="outline" className="rounded-xl border-slate-200 h-9 px-3 gap-2" onClick={() => onAction(member.id, 'ho-so')}>
+                <Button variant="outline" className="rounded-xl border-slate-200 h-9 px-3 gap-2" onClick={() => onAction(member.id, 'ho-so-hoi-vien')}>
                   <UserCircle className="w-4 h-4" />
                   <span className="font-bold text-sm">Hồ sơ</span>
                 </Button>

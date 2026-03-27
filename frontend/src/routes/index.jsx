@@ -93,6 +93,10 @@ export const router = createBrowserRouter([
         path: "ho-so",
         element: <ProfilePage />
       },
+      {
+        path: "ho-so-hoi-vien/:memberId",
+        element: <ProfilePage />
+      },
     ]
   },
   // Chuyển hướng về trang chủ nếu truy cập vào đường dẫn không tồn tại

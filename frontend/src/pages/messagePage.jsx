@@ -150,7 +150,7 @@ const MessagePage = () => {
   };
 
   return (
-    <div className="w-full p-4 font-figtree h-[calc(100vh-80px)] min-h-0">
+    <div className="w-full p-4 font-figtree h-full min-h-0">
       <div className="h-full min-h-0 flex flex-col md:flex-row gap-4">
         {/* ================= CỘT TRÁI: DANH SÁCH TIN NHẮN ================= */}
         <Card className="w-full md:w-[350px] h-full shrink-0 flex flex-col rounded-[24px] border-slate-100 shadow-sm bg-white overflow-hidden">
