@@ -6,7 +6,7 @@ export const CancelConfirmModal = ({ isOpen, onClose, onConfirm, scheduleData })
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent className="max-w-[400px] rounded-2xl font-figtree">
-        <AlertDialogHeader>
+        <AlertDialogHeader className="items-center text-center sm:group-data-[size=default]/alert-dialog-content:place-items-center sm:group-data-[size=default]/alert-dialog-content:text-center">
           <AlertDialogTitle className="text-center text-lg text-slate-900 leading-snug">
             Xác nhận xoá giờ tập của <span className="text-blue-600">{scheduleData.memberName}</span><br/>
             vào <span className="text-blue-600">Thứ {scheduleData.schedule.ThuTrongTuan}</span> lúc <span className="text-blue-600">{scheduleData.schedule.GioBatDau} - {scheduleData.schedule.GioKetThuc}</span>?

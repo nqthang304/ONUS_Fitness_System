@@ -1,16 +1,28 @@
 import { useAuth } from "@/providers/auth.providers";
 import { cn } from "@/lib/utils";
-import { 
-  LayoutGrid, Activity, Calendar, MessageSquare, 
-  Bell, User, Users, Dumbbell, Utensils, 
-  ClipboardList, UserCog, LogOut 
+import {
+  LayoutGrid, Activity, Calendar, MessageSquare,
+  Bell, User, Users, Dumbbell, Utensils,
+  ClipboardList, UserCog, LogOut
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { NavLink } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
 
 const Sidebar = () => {
   const { user, role, logout } = useAuth();
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   // Cấu hình Menu cho từng Role
   const menuConfig = {
@@ -47,7 +59,7 @@ const Sidebar = () => {
       {/* Logo Phần đầu */}
       <div className="p-6 flex items-center gap-3">
         <div className="bg-onus-blue w-10 h-10 rounded-lg flex items-center justify-center">
-          <Activity className="text-white w-6 h-6" /> 
+          <Activity className="text-white w-6 h-6" />
         </div>
         <span className="text-2xl font-bold text-onus-blue tracking-tight">ONUS</span>
       </div>
@@ -63,8 +75,8 @@ const Sidebar = () => {
             // isActive là giá trị boolean React Router trả về để biết URL có khớp ko
             className={({ isActive }) => cn(
               "w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group",
-              isActive 
-                ? "bg-blue-50 text-onus-blue font-semibold" 
+              isActive
+                ? "bg-blue-50 text-onus-blue font-semibold"
                 : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
             )}
           >
@@ -101,14 +113,41 @@ const Sidebar = () => {
             </span>
           </div>
         </div>
-        
-        <button 
-          onClick={logout}
-          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-          title="Đăng xuất"
-        >
-          <LogOut className="w-6 h-6" />
-        </button>
+
+        <AlertDialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
+          <AlertDialogTrigger asChild>
+            <button
+              className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+              title="Đăng xuất"
+            >
+              <LogOut className="w-6 h-6" />
+            </button>
+          </AlertDialogTrigger>
+
+          <AlertDialogContent className="max-w-[400px] rounded-2xl font-figtree p-5 gap-4">
+            <AlertDialogHeader className="items-start text-left sm:text-left">
+              <AlertDialogTitle className="text-left text-lg font-bold leading-snug text-slate-900">
+                Xác nhận đăng xuất
+                <br />
+                <span className="font-normal text-slate-600">
+                  Bạn có chắc chắn muốn đăng xuất khỏi hệ thống không?
+                </span>
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter className="flex flex-row w-full items-center gap-3 mt-4 sm:space-x-0">
+              <AlertDialogCancel className="flex-1 h-10 mt-0 rounded-xl bg-slate-100 hover:bg-slate-200 border-none text-slate-700 font-medium text-center">
+                Hủy
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={logout}
+                className="flex-1 h-10 rounded-xl !text-white font-medium text-center !bg-red-600 hover:!bg-red-700"
+              >
+                Đăng xuất
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </aside>
   );
