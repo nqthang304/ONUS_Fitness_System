@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 :: ==========================================
 :: 1. CẤU HÌNH ĐƯỜNG DẪN CỨNG (Sửa ở đây)
 :: ==========================================
-set "SOURCE_DIR=D:\DaiHoc\Source\ONUS_Fitness_System\frontend"
+set "SOURCE_DIR=D:\DaiHoc\Source\ONUS_Fitness_System"
 set "OUTPUT_FILE=D:\DaiHoc\Source\ONUS_Fitness_System\workspace\structure.txt"
 
 :: ==========================================

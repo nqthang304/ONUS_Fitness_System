@@ -1,31 +1,46 @@
-# --- IDE & Hệ thống ---
+# ==========================================
+# 1. MÔI TRƯỜNG & IDE (Thư mục gốc)
+# ==========================================
+.venv/
+venv/
+env/
 .idea/
 .vscode/
 .DS_Store
 Thumbs.db
 *.swp
+*.log
+temp/
 
-# --- BACKEND (Django) ---
-backend/venv/
-backend/__pycache__/
-backend/*.pyc
-backend/*.pyo
-backend/*.pyd
+# ==========================================
+# 2. PYTHON (Áp dụng toàn project)
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# ==========================================
+# 3. BACKEND (Django)
+# ==========================================
 backend/db.sqlite3
+backend/db.sqlite3-journal
 backend/.env
-backend/static_root/
+backend/.env.*
+backend/media/
 backend/media_root/
+backend/static_root/
 
-# --- FRONTEND (React/Vite) ---
+# ==========================================
+# 4. FRONTEND (React/Vite)
+# ==========================================
 frontend/node_modules/
 frontend/dist/
 frontend/build/
 frontend/.env
 frontend/.env.local
+frontend/.env.*.local
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
-
-# --- Khác ---
-*.log
-temp/
