@@ -1,17 +1,43 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Search, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { DB_TAI_KHOAN, DB_HOI_VIEN, DB_HLV, getMergedAccounts } from "@/features/adminAccount/mockData";
+import profileApi from "@/api/profileApi";
 import { AccountTable } from "@/features/adminAccount/accountTable";
 import { AccountModal } from "@/features/adminAccount/accountModal";
 import { ConfirmActionModal } from "@/features/adminAccount/actionModals";
 
 const AdminAccountPage = () => {
   // States dữ liệu
-  const [accounts, setAccounts] = useState(getMergedAccounts(DB_TAI_KHOAN, DB_HOI_VIEN, DB_HLV));
+  const [accounts, setAccounts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const response = await profileApi.getAllAccounts();
+        const normalized = Array.isArray(response.data)
+          ? response.data.map((acc) => ({
+              id: acc.id,
+              name: acc.name || "Chưa cập nhật",
+              phone: acc.phone || "",
+              role: acc.role === "hlv" ? "HLV" : acc.role === "hoivien" ? "Hội viên" : "Admin",
+              status: acc.status || (acc.is_active ? "Hoạt động" : "Bị khóa"),
+              dob: acc.dob || "",
+              gender: acc.gender || "",
+              hlvId: acc.hlv_id ? String(acc.hlv_id) : "",
+            }))
+          : [];
+
+        setAccounts(normalized);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách tài khoản:", error);
+      }
+    };
+
+    fetchAccounts();
+  }, []);
 
   // States Modals
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -47,19 +73,27 @@ const AdminAccountPage = () => {
     setIsFormOpen(false);
   };
 
-  const handleConfirmStatus = () => {
+  const handleConfirmStatus = async () => {
     if (!selectedAccount) return;
 
-    console.log("Toggle status for API:", selectedAccount.id);
-    setAccounts(prev =>
-      prev.map(acc =>
-        acc.id === selectedAccount.id
-          ? { ...acc, status: acc.status === "Hoạt động" ? "Bị khóa" : "Hoạt động" }
-          : acc
-      )
-    );
-    setIsStatusOpen(false);
-    setSelectedAccount(null);
+    try {
+      const nextIsActive = selectedAccount.status !== "Hoạt động";
+      const response = await profileApi.updateAccountStatus(selectedAccount.id, nextIsActive);
+      const updatedStatus = response?.data?.status || (response?.data?.is_active ? "Hoạt động" : "Bị khóa");
+
+      setAccounts(prev =>
+        prev.map(acc =>
+          acc.id === selectedAccount.id
+            ? { ...acc, status: updatedStatus }
+            : acc
+        )
+      );
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái tài khoản:", error);
+    } finally {
+      setIsStatusOpen(false);
+      setSelectedAccount(null);
+    }
   };
 
   const handleConfirmDelete = () => {

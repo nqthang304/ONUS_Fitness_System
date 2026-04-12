@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth.models import User
+import json
 from .models import HLV, HoiVien
 from .serializers import CustomTokenObtainPairSerializer, ChangePasswordSerializer, HoiVienProfileSerializer
 
@@ -201,3 +202,105 @@ class TrainerMemberListView(APIView):
             # In lỗi ra terminal của Django để bạn đọc được cụ thể là lỗi gì
             print(f"CRITICAL ERROR: {str(e)}")
             return Response({"detail": "Lỗi hệ thống nội bộ."}, status=500)
+
+
+class AccountListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def _is_admin_user(self, user):
+        return user.is_staff or user.groups.filter(name='admin').exists()
+
+    def get(self, request):
+        if not self._is_admin_user(request.user):
+            return Response({"detail": "Bạn không có quyền truy cập."}, status=status.HTTP_403_FORBIDDEN)
+
+        users = User.objects.all().prefetch_related('groups')
+        hlv_profiles = {
+            p.Id_TaiKhoan_id: p
+            for p in HLV.objects.select_related('Id_TaiKhoan')
+        }
+        hoivien_profiles = {
+            p.Id_TaiKhoan_id: p
+            for p in HoiVien.objects.select_related('Id_HLV__Id_TaiKhoan', 'Id_TaiKhoan')
+        }
+
+        results = []
+        for user in users:
+            group_names = [g.name.lower() for g in user.groups.all()]
+            role = group_names[0] if group_names else ('admin' if user.is_staff else 'unknown')
+
+            name = 'Chưa cập nhật'
+            dob = None
+            gender = None
+            hlv_id = None
+
+            if role == 'hlv':
+                hlv = hlv_profiles.get(user.id)
+                if hlv:
+                    name = hlv.HoTen
+                    dob = hlv.NgaySinh
+                    gender = hlv.GioiTinh
+            elif role == 'hoivien':
+                hv = hoivien_profiles.get(user.id)
+                if hv:
+                    name = hv.HoTen
+                    dob = hv.NgaySinh
+                    gender = hv.GioiTinh
+                    hlv_id = hv.Id_HLV.Id_TaiKhoan_id if hv.Id_HLV else None
+            elif role == 'admin':
+                name = 'Quản trị hệ thống'
+
+            results.append({
+                'id': user.id,
+                'phone': user.username,
+                'role': role,
+                'status': 'Hoạt động' if user.is_active else 'Bị khóa',
+                'is_active': user.is_active,
+                'name': name,
+                'dob': dob,
+                'gender': gender,
+                'hlv_id': hlv_id,
+            })
+
+        return Response(results, status=status.HTTP_200_OK)
+
+
+class AccountStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def _is_admin_user(self, user):
+        return user.is_staff or user.groups.filter(name='admin').exists()
+
+    def patch(self, request, user_id):
+        if not self._is_admin_user(request.user):
+            return Response({"detail": "Bạn không có quyền truy cập."}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            target_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"detail": "Tài khoản không tồn tại."}, status=status.HTTP_404_NOT_FOUND)
+
+        payload = getattr(request, 'data', None)
+        if payload is None:
+            try:
+                payload = json.loads(request.body.decode('utf-8')) if request.body else {}
+            except (ValueError, UnicodeDecodeError):
+                payload = request.POST or {}
+
+        is_active = payload.get('is_active')
+        if is_active is None:
+            return Response({"detail": "Thiếu trường is_active."}, status=status.HTTP_400_BAD_REQUEST)
+        if not isinstance(is_active, bool):
+            return Response({"detail": "is_active phải là boolean."}, status=status.HTTP_400_BAD_REQUEST)
+
+        target_user.is_active = is_active
+        target_user.save(update_fields=['is_active'])
+
+        return Response(
+            {
+                'id': target_user.id,
+                'is_active': target_user.is_active,
+                'status': 'Hoạt động' if target_user.is_active else 'Bị khóa',
+            },
+            status=status.HTTP_200_OK,
+        )

@@ -14,6 +14,12 @@ const profileApi = {
     },
     getHoiVienList: () => {
         return axiosClient.get('/api/trainer/my-members/');
+    },
+    getAllAccounts: () => {
+        return axiosClient.get('/api/accounts/');
+    },
+    updateAccountStatus: (userId, isActive) => {
+        return axiosClient.patch(`/api/accounts/${userId}/status/`, { is_active: isActive });
     }
 };
 
