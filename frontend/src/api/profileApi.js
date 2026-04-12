@@ -18,11 +18,17 @@ const profileApi = {
     getAllAccounts: () => {
         return axiosClient.get('/api/accounts/');
     },
+    updateAccount: (userId, payload) => {
+        return axiosClient.patch(`/api/accounts/${userId}/`, payload);
+    },
     createAccount: (payload) => {
         return axiosClient.post('/api/accounts/', payload);
     },
     updateAccountStatus: (userId, isActive) => {
         return axiosClient.patch(`/api/accounts/${userId}/status/`, { is_active: isActive });
+    },
+    updateMyProfile: (payload) => {
+        return axiosClient.patch('/api/profile/update/', payload);
     }
 };
 

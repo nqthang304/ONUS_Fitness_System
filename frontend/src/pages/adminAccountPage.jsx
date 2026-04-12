@@ -68,11 +68,37 @@ const AdminAccountPage = () => {
 
   // Handlers thực thi logic (Tương tác BE sau này)
   const handleSaveAccount = async (formData) => {
-    // TODO: cập nhật tài khoản (edit) sẽ nối API update sau.
     if (selectedAccount) {
-      console.log("Update account API (pending):", formData);
-      setIsFormOpen(false);
-      return;
+      try {
+        const payload = {
+          name: formData.name,
+          phone: formData.phone,
+          dob: formData.dob,
+          gender: formData.gender,
+          hlv_id: formData.role === "Hội viên" ? (formData.hlvId ? Number(formData.hlvId) : null) : null,
+        };
+
+        const response = await profileApi.updateAccount(selectedAccount.id, payload);
+        const updated = response?.data;
+        const normalized = {
+          id: updated.id,
+          name: updated.name || "Chưa cập nhật",
+          phone: updated.phone || "",
+          role: updated.role === "hlv" ? "HLV" : updated.role === "hoivien" ? "Hội viên" : "Admin",
+          status: updated.status || (updated.is_active ? "Hoạt động" : "Bị khóa"),
+          dob: updated.dob || "",
+          gender: updated.gender || "",
+          hlvId: updated.hlv_id ? String(updated.hlv_id) : "",
+        };
+
+        setAccounts((prev) => prev.map((acc) => (acc.id === selectedAccount.id ? normalized : acc)));
+        setIsFormOpen(false);
+        return;
+      } catch (error) {
+        const detail = error?.response?.data?.detail || "Không thể cập nhật tài khoản.";
+        console.error("Lỗi khi cập nhật tài khoản:", error?.response?.data || error);
+        throw new Error(detail);
+      }
     }
 
     try {

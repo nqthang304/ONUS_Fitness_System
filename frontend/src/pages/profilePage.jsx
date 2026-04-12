@@ -118,9 +118,16 @@ const ProfilePage = () => {
     }
   }, [isEditing, isOwnerProfile]);
 
-  const handleSaveProfile = (updatedData) => {
-    console.log("Dữ liệu cần gửi lên API cập nhật Profile:", updatedData);
-    setUserData({ ...userData, ...updatedData });
+  const handleSaveProfile = async (updatedData) => {
+    const payload = {
+      name: updatedData.name,
+      dob: updatedData.dob,
+      gender: updatedData.gender,
+    };
+
+    const response = await profileApi.updateMyProfile(payload);
+    const normalized = normalizeProfile(response.data);
+    setUserData(normalized);
   };
 
   const handleChangePassword = async (currentPass, newPass, confirmPass) => {

@@ -394,3 +394,241 @@ class AccountStatusView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class AccountDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def _is_admin_user(self, user):
+        return user.is_staff or user.groups.filter(name='admin').exists()
+
+    def _normalize_role(self, user):
+        if user.groups.filter(name='hlv').exists():
+            return 'hlv'
+        if user.groups.filter(name='hoivien').exists():
+            return 'hoivien'
+        if user.is_staff or user.groups.filter(name='admin').exists():
+            return 'admin'
+        return 'unknown'
+
+    def _parse_dob(self, dob_input):
+        if dob_input in (None, ''):
+            return None
+        try:
+            return date.fromisoformat(str(dob_input))
+        except ValueError:
+            return 'invalid'
+
+    def patch(self, request, user_id):
+        if not self._is_admin_user(request.user):
+            return Response({"detail": "Bạn không có quyền truy cập."}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            target_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"detail": "Tài khoản không tồn tại."}, status=status.HTTP_404_NOT_FOUND)
+
+        role = self._normalize_role(target_user)
+        if role not in ('hlv', 'hoivien'):
+            return Response({"detail": "Chỉ hỗ trợ cập nhật tài khoản HLV/Hội viên."}, status=status.HTTP_400_BAD_REQUEST)
+
+        payload = request.data if hasattr(request, 'data') else {}
+        name = payload.get('name')
+        dob_input = payload.get('dob')
+        gender = payload.get('gender')
+        phone = payload.get('phone')
+        hlv_id_input = payload.get('hlv_id')
+
+        if name is not None:
+            name = str(name).strip()
+            if not name:
+                return Response({"detail": "Họ tên không được để trống."}, status=status.HTTP_400_BAD_REQUEST)
+
+        parsed_dob = self._parse_dob(dob_input)
+        if parsed_dob == 'invalid':
+            return Response({"detail": "Ngày sinh không hợp lệ. Dùng định dạng YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if phone is not None:
+            phone = str(phone).strip()
+            if not phone:
+                return Response({"detail": "Số điện thoại không được để trống."}, status=status.HTTP_400_BAD_REQUEST)
+            if User.objects.exclude(id=target_user.id).filter(username=phone).exists():
+                return Response({"detail": "Số điện thoại đã tồn tại."}, status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            if phone is not None and target_user.username != phone:
+                target_user.username = phone
+                target_user.save(update_fields=['username'])
+
+            if role == 'hlv':
+                try:
+                    profile = HLV.objects.get(Id_TaiKhoan=target_user)
+                except HLV.DoesNotExist:
+                    return Response({"detail": "Không tìm thấy hồ sơ HLV."}, status=status.HTTP_404_NOT_FOUND)
+
+                update_fields = []
+                if name is not None:
+                    profile.HoTen = name
+                    update_fields.append('HoTen')
+                if parsed_dob is not None:
+                    profile.NgaySinh = parsed_dob
+                    update_fields.append('NgaySinh')
+                if gender is not None:
+                    profile.GioiTinh = str(gender).strip() or profile.GioiTinh
+                    update_fields.append('GioiTinh')
+
+                if update_fields:
+                    profile.save(update_fields=update_fields)
+
+                result_name = profile.HoTen
+                result_dob = profile.NgaySinh
+                result_gender = profile.GioiTinh
+                result_hlv_id = None
+            else:
+                try:
+                    profile = HoiVien.objects.get(Id_TaiKhoan=target_user)
+                except HoiVien.DoesNotExist:
+                    return Response({"detail": "Không tìm thấy hồ sơ hội viên."}, status=status.HTTP_404_NOT_FOUND)
+
+                update_fields = []
+                if name is not None:
+                    profile.HoTen = name
+                    update_fields.append('HoTen')
+                if parsed_dob is not None:
+                    profile.NgaySinh = parsed_dob
+                    update_fields.append('NgaySinh')
+                if gender is not None:
+                    profile.GioiTinh = str(gender).strip() or profile.GioiTinh
+                    update_fields.append('GioiTinh')
+
+                if hlv_id_input is not None:
+                    if hlv_id_input in ('', 'null'):
+                        profile.Id_HLV = None
+                    else:
+                        try:
+                            profile.Id_HLV = HLV.objects.get(Id_TaiKhoan_id=int(hlv_id_input))
+                        except (HLV.DoesNotExist, ValueError, TypeError):
+                            return Response({"detail": "HLV phụ trách không tồn tại."}, status=status.HTTP_400_BAD_REQUEST)
+                    update_fields.append('Id_HLV')
+
+                if update_fields:
+                    profile.save(update_fields=update_fields)
+
+                result_name = profile.HoTen
+                result_dob = profile.NgaySinh
+                result_gender = profile.GioiTinh
+                result_hlv_id = profile.Id_HLV.Id_TaiKhoan_id if profile.Id_HLV else None
+
+        return Response(
+            {
+                'id': target_user.id,
+                'phone': target_user.username,
+                'role': role,
+                'status': 'Hoạt động' if target_user.is_active else 'Bị khóa',
+                'is_active': target_user.is_active,
+                'name': result_name,
+                'dob': result_dob,
+                'gender': result_gender,
+                'hlv_id': result_hlv_id,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class SelfProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def _parse_dob(self, dob_input):
+        if dob_input in (None, ''):
+            return None
+        try:
+            return date.fromisoformat(str(dob_input))
+        except ValueError:
+            return 'invalid'
+
+    def patch(self, request):
+        user = request.user
+        payload = request.data if hasattr(request, 'data') else {}
+
+        name = payload.get('name')
+        dob_input = payload.get('dob')
+        gender = payload.get('gender')
+
+        if name is not None:
+            name = str(name).strip()
+            if not name:
+                return Response({"detail": "Họ tên không được để trống."}, status=status.HTTP_400_BAD_REQUEST)
+
+        parsed_dob = self._parse_dob(dob_input)
+        if parsed_dob == 'invalid':
+            return Response({"detail": "Ngày sinh không hợp lệ. Dùng định dạng YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if user.groups.filter(name='hlv').exists():
+            try:
+                profile = HLV.objects.get(Id_TaiKhoan=user)
+            except HLV.DoesNotExist:
+                return Response({"detail": "Không tìm thấy hồ sơ HLV."}, status=status.HTTP_404_NOT_FOUND)
+
+            update_fields = []
+            if name is not None:
+                profile.HoTen = name
+                update_fields.append('HoTen')
+            if parsed_dob is not None:
+                profile.NgaySinh = parsed_dob
+                update_fields.append('NgaySinh')
+            if gender is not None:
+                profile.GioiTinh = str(gender).strip() or profile.GioiTinh
+                update_fields.append('GioiTinh')
+
+            if update_fields:
+                profile.save(update_fields=update_fields)
+
+            data = {
+                'id': profile.pk,
+                'HoTen': profile.HoTen,
+                'NgaySinh': profile.NgaySinh,
+                'GioiTinh': profile.GioiTinh,
+                'role': 'hlv',
+                'account_info': {
+                    'username': user.username,
+                    'is_active': user.is_active,
+                },
+            }
+            return Response(data, status=status.HTTP_200_OK)
+
+        if user.groups.filter(name='hoivien').exists():
+            try:
+                profile = HoiVien.objects.get(Id_TaiKhoan=user)
+            except HoiVien.DoesNotExist:
+                return Response({"detail": "Không tìm thấy hồ sơ hội viên."}, status=status.HTTP_404_NOT_FOUND)
+
+            update_fields = []
+            if name is not None:
+                profile.HoTen = name
+                update_fields.append('HoTen')
+            if parsed_dob is not None:
+                profile.NgaySinh = parsed_dob
+                update_fields.append('NgaySinh')
+            if gender is not None:
+                profile.GioiTinh = str(gender).strip() or profile.GioiTinh
+                update_fields.append('GioiTinh')
+
+            if update_fields:
+                profile.save(update_fields=update_fields)
+
+            data = {
+                'id': profile.pk,
+                'HoTen': profile.HoTen,
+                'NgaySinh': profile.NgaySinh,
+                'GioiTinh': profile.GioiTinh,
+                'role': 'hoivien',
+                'hlv_id': profile.Id_HLV.pk if profile.Id_HLV else None,
+                'ten_hlv': profile.Id_HLV.HoTen if profile.Id_HLV else None,
+                'account_info': {
+                    'username': user.username,
+                    'is_active': user.is_active,
+                },
+            }
+            return Response(data, status=status.HTTP_200_OK)
+
+        return Response({"detail": "Vai trò hiện tại không có hồ sơ để cập nhật."}, status=status.HTTP_400_BAD_REQUEST)

@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from accounts.views import AccountListView, AccountStatusView, ChangePasswordView, CustomLoginView, UserProfileView, TrainerMemberListView
+from accounts.views import AccountDetailView, AccountListView, AccountStatusView, ChangePasswordView, CustomLoginView, SelfProfileUpdateView, TrainerMemberListView, UserProfileView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
@@ -29,7 +29,9 @@ urlpatterns = [
     path('api/change-password/', ChangePasswordView.as_view(), name='change-password'),
     path('api/trainer/my-members/', TrainerMemberListView.as_view(), name='trainer-members'),
     path('api/accounts/', AccountListView.as_view(), name='account-list'),
+    path('api/accounts/<int:user_id>/', AccountDetailView.as_view(), name='account-detail'),
     path('api/accounts/<int:user_id>/status/', AccountStatusView.as_view(), name='account-status'),
+    path('api/profile/update/', SelfProfileUpdateView.as_view(), name='self-profile-update'),
 ]
 
 if settings.DEBUG:
