@@ -1,7 +1,7 @@
 from django.db import models
 
 class ChiSoCoThe(models.Model):
-    Id_HoiVien = models.ForeignKey('accounts.HoiVien', on_delete=models.PROTECT)
+    Id_HoiVien = models.ForeignKey('accounts.HoiVien', on_delete=models.CASCADE)
     CanNang = models.DecimalField(max_digits=5, decimal_places=2)
     ChieuCao = models.DecimalField(max_digits=5, decimal_places=2)
     VongBung = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
@@ -14,20 +14,20 @@ class ChiSoCoThe(models.Model):
 
 
 class LichTap(models.Model):
-    Id_HoiVien = models.ForeignKey('accounts.HoiVien', on_delete=models.PROTECT)
+    Id_HoiVien = models.ForeignKey('accounts.HoiVien', on_delete=models.CASCADE)
     ThuTrongTuan = models.SmallIntegerField() # Ánh xạ từ TINYINT
     GioBatDau = models.TimeField()
     GioKetThuc = models.TimeField()
 
 
 class BuaAn(models.Model):
-    Id_HoiVien = models.ForeignKey('accounts.HoiVien', on_delete=models.PROTECT)
+    Id_HoiVien = models.ForeignKey('accounts.HoiVien', on_delete=models.CASCADE)
     TenBua = models.CharField(max_length=20)
 
 
 class ChiTietBuaAn(models.Model):
     # Sử dụng Id_LichAn như trong ERD và thiết kế lớp
-    Id_LichAn = models.ForeignKey(BuaAn, on_delete=models.PROTECT)
+    Id_LichAn = models.ForeignKey(BuaAn, on_delete=models.CASCADE)
     TenThucPham = models.CharField(max_length=100)
     Luong = models.DecimalField(max_digits=6, decimal_places=2)
     Calo = models.DecimalField(max_digits=7, decimal_places=2)
