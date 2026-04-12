@@ -10,10 +10,21 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('access_token');
+        const requestUrl = `${config.baseURL || ''}${config.url || ''}`;
+
+        console.debug("[axios] request", {
+            url: requestUrl,
+            hasToken: Boolean(token),
+        });
         
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+
+        console.debug("[axios] authorization header", {
+            url: requestUrl,
+            authorization: config.headers?.Authorization || config.headers?.authorization || null,
+        });
         return config;
     },
     (error) => {
@@ -26,14 +37,7 @@ axiosClient.interceptors.response.use(
         return response;
     },
     (error) => {
-        const status = error?.response?.status;
-        const detail = error?.response?.data?.detail;
-        const isMissingCredentials =
-            status === 403 &&
-            typeof detail === 'string' &&
-            detail.toLowerCase().includes('authentication credentials were not provided');
-
-        if (status === 401 || isMissingCredentials) {
+        if (error?.response?.status === 401) {
             console.error("Phiên đăng nhập hết hạn hoặc không hợp lệ!");
             
             localStorage.clear();
