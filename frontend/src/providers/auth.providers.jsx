@@ -1,10 +1,5 @@
 import { createContext, useContext, useState } from "react";
-// Mock dữ liệu người dùng (thay thế cho API thực tế)
-const MOCK_USERS = [
-  { id: 1, soDienThoai: "0999999999", password: "123", tenHienThi: "Quản trị hệ thống", role: "ADMIN" },
-  { id: 2, soDienThoai: "0988888888", password: "123", tenHienThi: "HLV B", role: "HLV" },
-  { id: 3, soDienThoai: "0901234567", password: "123", tenHienThi: "Hội viên C", role: "HOIVIEN",hlv_id: 2 },
-];
+import authApi from "@/api/authApi";
 
 const AuthContext = createContext(null);
 
@@ -20,25 +15,42 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 800));
 
-    // Tìm người dùng dựa trên Số điện thoại
-    const foundUser = MOCK_USERS.find(
-      (u) => u.soDienThoai === soDienThoai && u.password === password
-    );
+    // Gọi API đăng nhập
+    try {
+      const response = await authApi.login(soDienThoai, password);
+      const data = response.data;
 
-    if (foundUser) {
-      const { password, ...userToSave } = foundUser;
-      localStorage.setItem("onus_user", JSON.stringify(userToSave));
-      setUser(userToSave);
+      // Lưu token vào localStorage
+      localStorage.setItem("access_token", data.access);
+      localStorage.setItem("refresh_token", data.refresh);
+
+      // Lưu thông tin người dùng (trừ mật khẩu) vào localStorage
+      localStorage.setItem("onus_user", JSON.stringify(data.user));
+
+      // Cập nhật state người dùng
+      setUser(data.user);
       setIsLoading(false);
       window.location.href = "/";
-    } else {
+      
+      return null;
+    } catch (error) {
       setIsLoading(false);
-      return "Số điện thoại hoặc mật khẩu không chính xác!";
+      console.error("Chi tiết lỗi Đăng nhập:", error);
+      
+      // Xử lý lỗi đăng nhập
+      if (error.response && error.response.status === 401) {
+        return "Số điện thoại hoặc mật khẩu không chính xác!";
+      }
+
+      return "Máy chủ đang bảo trì hoặc mất kết nối. Vui lòng thử lại!";
     }
   };
 
   const logout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("onus_user");
+    
     setUser(null);
     window.location.href = "/login";
   };
