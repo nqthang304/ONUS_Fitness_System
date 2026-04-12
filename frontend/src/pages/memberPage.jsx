@@ -1,22 +1,39 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MemberSearch from "@/features/memberPage/MemberSearch";
 import MemberTable from "@/features/memberPage/MemberTable";
-
+import profileApi
+ from "@/api/profileApi";
 const MemberPage = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState("");
+    const [members, setMembers] = useState([]);
 
-    // Dữ liệu giả lập
-    const [members] = useState([
-        { id: 3, name: "Hội viên C", phone: "0901234567" },
-        { id: 4, name: "Nguyễn Văn A", phone: "0912345678" },
-    ]);
+    const normalizeMember = (member) => ({
+        id: String(member?.account_info?.id || member?.id || ""),
+        name: member?.HoTen || "",
+        phone: member?.account_info?.username || "",
+    });
 
+    useEffect(() => {
+        const fetchMembers = async () => {
+            try {
+                const response = await profileApi.getHoiVienList();
+                console.log("Danh sách hội viên từ API:", response.data);
+                const normalized = Array.isArray(response.data)
+                    ? response.data.map(normalizeMember)
+                    : [];
+                setMembers(normalized);
+            } catch (error) {
+                console.error("Lỗi khi lấy danh sách hội viên:", error);
+            }
+        };
+        fetchMembers();
+    }, []);
     // Logic lọc dữ liệu
     const filteredData = members.filter(m =>
-        m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        m.phone.includes(searchTerm)
+        String(m.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        String(m.phone || "").includes(searchTerm)
     );
 
     // Xử lý khi nhấn nút bất kỳ

@@ -11,6 +11,9 @@ const profileApi = {
             new_password: newPassword, 
             confirm_password: confirmPassword 
         });
+    },
+    getHoiVienList: () => {
+        return axiosClient.get('/api/trainer/my-members/');
     }
 };
 

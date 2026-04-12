@@ -18,8 +18,8 @@ const MemberTable = ({ data, onAction }) => {
         {data.length > 0 ? (
           data.map((member) => (
             <div key={member.id} className="grid grid-cols-12 gap-4 px-6 py-5 items-center hover:bg-slate-50/40 transition-colors">
-              <div className="col-span-2 font-bold text-slate-800">{member.name}</div>
-              <div className="col-span-2 text-slate-600 font-medium">{member.phone}</div>
+              <div className="col-span-2 font-bold text-slate-800">{member.HoTen}</div>
+              <div className="col-span-2 text-slate-600 font-medium">{member.account_info.username}</div>
               
               <div className="col-span-8 flex justify-end gap-2 flex-wrap">
                 <ActionButton icon={<Activity />} label="Kết quả" color="text-blue-600 bg-blue-50" onClick={() => onAction(member.id, 'ket-qua')} />

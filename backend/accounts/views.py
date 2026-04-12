@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth.models import User
 from .models import HLV, HoiVien
-from .serializers import CustomTokenObtainPairSerializer, ChangePasswordSerializer
+from .serializers import CustomTokenObtainPairSerializer, ChangePasswordSerializer, HoiVienProfileSerializer
 
 class CustomLoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -170,3 +170,34 @@ class ChangePasswordView(APIView):
         
         print(f"[ChangePasswordView] Serializer is invalid: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+class TrainerMemberListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        
+        # Kiểm tra Role linh hoạt hơn (không phân biệt hoa thường)
+        is_hlv = user.groups.filter(name__iexact='hlv').exists()
+        if not is_hlv:
+            return Response({"detail": "Bạn không có quyền xem danh sách này."}, status=403)
+
+        try:
+            # 1. Lấy profile HLV
+            try:
+                hlv_profile = HLV.objects.get(Id_TaiKhoan=user)
+            except HLV.DoesNotExist:
+                return Response({"detail": "Tài khoản của bạn chưa được thiết lập hồ sơ HLV."}, status=404)
+
+            # 2. Lấy danh sách hội viên và tối ưu query (select_related để tránh lỗi NULL và tăng tốc)
+            # select_related giúp lấy luôn thông tin HLV để Serializer không bị lỗi AttributeError
+            members = HoiVien.objects.filter(Id_HLV=hlv_profile).select_related('Id_HLV', 'Id_TaiKhoan')
+
+            serializer = HoiVienProfileSerializer(members, many=True)
+            return Response(serializer.data)
+
+        except Exception as e:
+            # In lỗi ra terminal của Django để bạn đọc được cụ thể là lỗi gì
+            print(f"CRITICAL ERROR: {str(e)}")
+            return Response({"detail": "Lỗi hệ thống nội bộ."}, status=500)

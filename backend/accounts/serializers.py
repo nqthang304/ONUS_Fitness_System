@@ -45,7 +45,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'is_active']
+        fields = ['id', 'username', 'is_active']
 
 class HLVProfileSerializer(serializers.ModelSerializer):
     account_info = UserBaseSerializer(source='Id_TaiKhoan', read_only=True)
@@ -70,12 +70,11 @@ class HoiVienProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = HoiVien
         fields = [
-            'Id_HoiVien', 
+            'id', 
             'HoTen', 
             'NgaySinh', 
             'GioiTinh', 
-            'AnhDaiDien', 
-            'ten_hlv', 
+            'ten_hlv',
             'hlv_id',
             'account_info'
         ]
