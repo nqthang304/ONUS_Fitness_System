@@ -27,6 +27,9 @@ const profileApi = {
     updateAccountStatus: (userId, isActive) => {
         return axiosClient.patch(`/api/accounts/${userId}/status/`, { is_active: isActive });
     },
+    deleteAccount: (userId) => {
+        return axiosClient.delete(`/api/accounts/${userId}/`);
+    },
     updateMyProfile: (payload) => {
         return axiosClient.patch('/api/profile/update/', payload);
     }

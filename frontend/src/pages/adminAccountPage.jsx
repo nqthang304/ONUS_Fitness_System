@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import profileApi from "@/api/profileApi";
 import { AccountTable } from "@/features/adminAccount/accountTable";
 import { AccountModal } from "@/features/adminAccount/accountModal";
-import { ConfirmActionModal } from "@/features/adminAccount/actionModals";
+import { ActionResultModal, ConfirmActionModal } from "@/features/adminAccount/actionModals";
 
 const AdminAccountPage = () => {
   // States dữ liệu
@@ -43,6 +43,11 @@ const AdminAccountPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
+  const [resultModal, setResultModal] = useState({
+    isOpen: false,
+    isSuccess: true,
+    message: "",
+  });
   
   // State target cho thao tác
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -156,13 +161,30 @@ const AdminAccountPage = () => {
     }
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!selectedAccount) return;
 
-    console.log("Delete API:", selectedAccount.id);
-    setAccounts(prev => prev.filter(acc => acc.id !== selectedAccount.id));
-    setIsDeleteOpen(false);
-    setSelectedAccount(null);
+    try {
+      await profileApi.deleteAccount(selectedAccount.id);
+      setAccounts(prev => prev.filter(acc => acc.id !== selectedAccount.id));
+      setResultModal({
+        isOpen: true,
+        isSuccess: true,
+        message: `Đã xóa tài khoản ${selectedAccount.name} thành công.`,
+      });
+      setIsDeleteOpen(false);
+      setSelectedAccount(null);
+    } catch (error) {
+      const detail = error?.response?.data?.detail || "Không thể xóa tài khoản.";
+      console.error("Lỗi khi xóa tài khoản:", error?.response?.data || error);
+      setResultModal({
+        isOpen: true,
+        isSuccess: false,
+        message: detail,
+      });
+      setIsDeleteOpen(false);
+      setSelectedAccount(null);
+    }
   };
 
   return (
@@ -223,6 +245,13 @@ const AdminAccountPage = () => {
         title={`Xác nhận xoá tài khoản ${selectedAccount?.name}?`}
         confirmText="Xác nhận"
         isDestructive={true} 
+      />
+
+      <ActionResultModal
+        isOpen={resultModal.isOpen}
+        onClose={() => setResultModal((prev) => ({ ...prev, isOpen: false }))}
+        title={resultModal.message}
+        isSuccess={resultModal.isSuccess}
       />
     </div>
   );

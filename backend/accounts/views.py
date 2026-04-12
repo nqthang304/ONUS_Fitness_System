@@ -5,10 +5,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth.models import Group, User
 from django.db import transaction
+from django.db.models.deletion import ProtectedError
 from datetime import date
+import logging
 import json
 from .models import HLV, HoiVien
 from .serializers import CustomTokenObtainPairSerializer, ChangePasswordSerializer, HoiVienProfileSerializer
+from fitness.models import LichTap
+
+logger = logging.getLogger(__name__)
 
 class CustomLoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -530,6 +535,68 @@ class AccountDetailView(APIView):
                 'dob': result_dob,
                 'gender': result_gender,
                 'hlv_id': result_hlv_id,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    def delete(self, request, user_id):
+        if not self._is_admin_user(request.user):
+            return Response({"detail": "Bạn không có quyền truy cập."}, status=status.HTTP_403_FORBIDDEN)
+
+        if request.user.id == user_id:
+            return Response(
+                {"detail": "Không cho phép xóa chính tài khoản Quản trị viên đang đăng nhập."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            target_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"detail": "Tài khoản không tồn tại."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Rule ngoại lệ: không xóa PT khi còn lịch tập đang chờ.
+        # Hệ thống hiện chưa có trạng thái lịch, nên kiểm tra theo dữ liệu lịch hiện hữu của hội viên thuộc PT.
+        if target_user.groups.filter(name='hlv').exists():
+            try:
+                hlv_profile = HLV.objects.get(Id_TaiKhoan=target_user)
+            except HLV.DoesNotExist:
+                hlv_profile = None
+
+            if hlv_profile is not None:
+                has_pending_schedule = LichTap.objects.filter(Id_HoiVien__Id_HLV=hlv_profile).exists()
+                if has_pending_schedule:
+                    return Response(
+                        {"detail": "Không thể xóa PT đang có lịch tập đang chờ."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+        actor = request.user
+        target_snapshot = {
+            'id': target_user.id,
+            'username': target_user.username,
+        }
+
+        try:
+            with transaction.atomic():
+                target_user.delete()
+        except ProtectedError:
+            return Response(
+                {"detail": "Không thể xóa tài khoản do đang có dữ liệu ràng buộc."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        logger.info(
+            "ADMIN_DELETE_ACCOUNT actor_id=%s actor_username=%s target_id=%s target_username=%s",
+            actor.id,
+            actor.username,
+            target_snapshot['id'],
+            target_snapshot['username'],
+        )
+
+        return Response(
+            {
+                'detail': 'Xóa tài khoản thành công.',
+                'id': target_snapshot['id'],
             },
             status=status.HTTP_200_OK,
         )
