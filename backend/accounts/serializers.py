@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import HLV, HoiVien
-
+from django.contrib.auth.password_validation import validate_password
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -79,3 +79,28 @@ class HoiVienProfileSerializer(serializers.ModelSerializer):
             'hlv_id',
             'account_info'
         ]
+        
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_password = serializers.CharField(required=True)
+
+    def validate_new_password(self, value):
+        # Kiểm tra độ dài
+        if len(value) < 8:
+            raise serializers.ValidationError("Mật khẩu mới phải có tối thiểu 8 ký tự.")
+        # Kiểm tra có chữ hoa
+        if not any(c.isupper() for c in value):
+            raise serializers.ValidationError("Mật khẩu phải chứa ít nhất 1 ký tự hoa.")
+        # Kiểm tra có chữ thường
+        if not any(c.islower() for c in value):
+            raise serializers.ValidationError("Mật khẩu phải chứa ít nhất 1 ký tự thường.")
+        # Kiểm tra có số
+        if not any(c.isdigit() for c in value):
+            raise serializers.ValidationError("Mật khẩu phải chứa ít nhất 1 chữ số.")
+        return value
+
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['confirm_password']:
+            raise serializers.ValidationError({"confirm_password": "Mật khẩu xác nhận không khớp."})
+        return attrs

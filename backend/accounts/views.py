@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth.models import User
 from .models import HLV, HoiVien
-from .serializers import CustomTokenObtainPairSerializer
+from .serializers import CustomTokenObtainPairSerializer, ChangePasswordSerializer
 
 class CustomLoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -126,3 +126,47 @@ class UserProfileView(APIView):
             return Response({"detail": "Không tìm thấy hồ sơ tương ứng."}, status=status.HTTP_404_NOT_FOUND)
 
         return Response(data, status=status.HTTP_200_OK)
+    
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        print(f"[ChangePasswordView] POST request received")
+        print(f"[ChangePasswordView] request.data: {request.data}")
+        
+        serializer = ChangePasswordSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            print(f"[ChangePasswordView] Serializer is valid")
+            user = request.user
+            print(f"[ChangePasswordView] User: {user.username}")
+            
+            # 1. Kiểm tra mật khẩu cũ
+            if not user.check_password(serializer.data.get("old_password")):
+                print(f"[ChangePasswordView] Old password is incorrect")
+                return Response(
+                    {"old_password": ["Mật khẩu cũ không chính xác."]}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # 2. Kiểm tra mật khẩu mới không được trùng mật khẩu cũ
+            if serializer.data.get("old_password") == serializer.data.get("new_password"):
+                print(f"[ChangePasswordView] New password is same as old password")
+                return Response(
+                    {"new_password": ["Mật khẩu mới không được trùng với mật khẩu cũ."]},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # 3. Đặt mật khẩu mới (set_password sẽ tự động mã hóa mật khẩu)
+            print(f"[ChangePasswordView] Setting new password")
+            user.set_password(serializer.data.get("new_password"))
+            user.save()
+            print(f"[ChangePasswordView] Password changed successfully for user: {user.username}")
+            
+            return Response(
+                {"detail": "Đổi mật khẩu thành công."}, 
+                status=status.HTTP_200_OK
+            )
+        
+        print(f"[ChangePasswordView] Serializer is invalid: {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -5,6 +5,13 @@ const profileApi = {
     getProfile: (params = {}) => {
         return axiosClient.get('/api/profile/', { params });
     },
+    changePassword: (oldPassword, newPassword, confirmPassword) => {
+        return axiosClient.post('/api/change-password/', { 
+            old_password: oldPassword, 
+            new_password: newPassword, 
+            confirm_password: confirmPassword 
+        });
+    }
 };
 
 export default profileApi;

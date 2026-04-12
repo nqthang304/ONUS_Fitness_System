@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from accounts.views import CustomLoginView, UserProfileView
+from accounts.views import ChangePasswordView, CustomLoginView, UserProfileView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/login/', CustomLoginView.as_view(), name='login'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/profile/', UserProfileView.as_view(), name='user_profile'),
+    path('api/change-password/', ChangePasswordView.as_view(), name='change-password')
 ]
 
 if settings.DEBUG:

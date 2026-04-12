@@ -123,8 +123,16 @@ const ProfilePage = () => {
     setUserData({ ...userData, ...updatedData });
   };
 
-  const handleChangePassword = (currentPass, newPass) => {
-    console.log("Gửi API đổi mật khẩu với:", { currentPass, newPass });
+  const handleChangePassword = async (currentPass, newPass, confirmPass) => {
+    // Chỉ call API, let Modal handle success/error
+    console.log("[handleChangePassword] Calling API with:", { currentPass, newPass, confirmPass });
+    const response = await profileApi.changePassword(currentPass, newPass, confirmPass);
+    console.log("[handleChangePassword] Response received:", {
+      status: response.status,
+      statusText: response.statusText,
+      data: response.data
+    });
+    return response.data;
   };
 
   if (loading) return <div className="p-8 text-center text-slate-500">Đang tải hồ sơ...</div>;
