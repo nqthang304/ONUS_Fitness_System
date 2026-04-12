@@ -1,3 +1,5 @@
+from rest_framework import serializers
+from django.contrib.auth.models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import HLV, HoiVien
 
@@ -39,3 +41,41 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         }
 
         return data
+    
+class UserBaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'is_active']
+
+class HLVProfileSerializer(serializers.ModelSerializer):
+    account_info = UserBaseSerializer(source='Id_TaiKhoan', read_only=True)
+
+    class Meta:
+        model = HLV
+        fields = [
+            'Id_HLV', 
+            'HoTen', 
+            'NgaySinh', 
+            'GioiTinh', 
+            'account_info'
+        ]
+        
+class HoiVienProfileSerializer(serializers.ModelSerializer):
+    account_info = UserBaseSerializer(source='Id_TaiKhoan', read_only=True)
+    
+    ten_hlv = serializers.ReadOnlyField(source='Id_HLV.HoTen')
+    
+    hlv_id = serializers.ReadOnlyField(source='Id_HLV.Id_HLV')
+
+    class Meta:
+        model = HoiVien
+        fields = [
+            'Id_HoiVien', 
+            'HoTen', 
+            'NgaySinh', 
+            'GioiTinh', 
+            'AnhDaiDien', 
+            'ten_hlv', 
+            'hlv_id',
+            'account_info'
+        ]

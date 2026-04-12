@@ -13,8 +13,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (soDienThoai, password) => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
     // Gọi API đăng nhập
     try {
       const response = await authApi.login(soDienThoai, password);
