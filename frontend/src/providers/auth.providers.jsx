@@ -12,10 +12,17 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const login = async (soDienThoai, password) => {
+    const username = String(soDienThoai || "").trim();
+    const rawPassword = String(password || "");
+
+    if (!username || !rawPassword.trim()) {
+      return "Vui lòng nhập đầy đủ số điện thoại và mật khẩu.";
+    }
+
     setIsLoading(true);
     // Gọi API đăng nhập
     try {
-      const response = await authApi.login(soDienThoai, password);
+      const response = await authApi.login(username, rawPassword);
       const data = response.data;
 
       // Lưu token vào localStorage
@@ -34,10 +41,38 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       setIsLoading(false);
       console.error("Chi tiết lỗi Đăng nhập:", error);
-      
-      // Xử lý lỗi đăng nhập
-      if (error.response && error.response.status === 401) {
+
+      const statusCode = error?.response?.status;
+      const errorData = error?.response?.data || {};
+      const detail = errorData?.detail;
+      const usernameErrors = errorData?.username;
+      const passwordErrors = errorData?.password;
+      const nonFieldErrors = errorData?.non_field_errors;
+
+      // Sai thông tin đăng nhập
+      if (statusCode === 401) {
         return "Số điện thoại hoặc mật khẩu không chính xác!";
+      }
+
+      // Thiếu input hoặc payload không hợp lệ
+      if (statusCode === 400) {
+        if (Array.isArray(usernameErrors) && usernameErrors.length > 0) {
+          return usernameErrors[0];
+        }
+        if (Array.isArray(passwordErrors) && passwordErrors.length > 0) {
+          return passwordErrors[0];
+        }
+        if (Array.isArray(nonFieldErrors) && nonFieldErrors.length > 0) {
+          return nonFieldErrors[0];
+        }
+        if (typeof detail === "string" && detail.trim()) {
+          return detail;
+        }
+        return "Vui lòng nhập đúng thông tin đăng nhập.";
+      }
+
+      if (!error?.response) {
+        return "Mất kết nối tới máy chủ. Vui lòng kiểm tra mạng và thử lại.";
       }
 
       return "Máy chủ đang bảo trì hoặc mất kết nối. Vui lòng thử lại!";

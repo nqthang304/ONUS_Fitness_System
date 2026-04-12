@@ -3,7 +3,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
+from django.db import transaction
+from datetime import date
 import json
 from .models import HLV, HoiVien
 from .serializers import CustomTokenObtainPairSerializer, ChangePasswordSerializer, HoiVienProfileSerializer
@@ -263,6 +265,94 @@ class AccountListView(APIView):
             })
 
         return Response(results, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        if not self._is_admin_user(request.user):
+            return Response({"detail": "Bạn không có quyền truy cập."}, status=status.HTTP_403_FORBIDDEN)
+
+        payload = request.data if hasattr(request, 'data') else {}
+        name = str(payload.get('name', '')).strip()
+        phone = str(payload.get('phone', '')).strip()
+        role_input = str(payload.get('role', '')).strip().lower()
+        dob_input = payload.get('dob')
+        gender = str(payload.get('gender', '')).strip() or 'Nam'
+        hlv_id_input = payload.get('hlv_id')
+        password = str(payload.get('password') or 'Abc@12345')
+
+        role_alias = {
+            'hlv': 'hlv',
+            'huấn luyện viên': 'hlv',
+            'huan luyen vien': 'hlv',
+            'hoivien': 'hoivien',
+            'hội viên': 'hoivien',
+            'hoi vien': 'hoivien',
+        }
+        role = role_alias.get(role_input, role_input)
+
+        if not name or not phone or role not in ('hlv', 'hoivien'):
+            return Response(
+                {"detail": "Thiếu thông tin bắt buộc hoặc vai trò không hợp lệ."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if User.objects.filter(username=phone).exists():
+            return Response({"detail": "Số điện thoại đã tồn tại."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            dob = date.fromisoformat(str(dob_input)) if dob_input else None
+        except ValueError:
+            return Response({"detail": "Ngày sinh không hợp lệ. Dùng định dạng YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not dob:
+            return Response({"detail": "Thiếu ngày sinh."}, status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            user = User.objects.create(username=phone, is_active=True)
+            user.set_password(password)
+            user.save()
+
+            role_group, _ = Group.objects.get_or_create(name=role)
+            user.groups.add(role_group)
+
+            hlv_ref = None
+            if role == 'hoivien' and hlv_id_input not in (None, ''):
+                try:
+                    hlv_ref = HLV.objects.get(Id_TaiKhoan_id=int(hlv_id_input))
+                except (HLV.DoesNotExist, ValueError, TypeError):
+                    return Response({"detail": "HLV phụ trách không tồn tại."}, status=status.HTTP_400_BAD_REQUEST)
+            elif role == 'hoivien':
+                return Response({"detail": "Hội viên cần chọn HLV phụ trách."}, status=status.HTTP_400_BAD_REQUEST)
+
+            if role == 'hlv':
+                HLV.objects.create(
+                    Id_TaiKhoan=user,
+                    HoTen=name,
+                    NgaySinh=dob,
+                    GioiTinh=gender,
+                )
+            else:
+                HoiVien.objects.create(
+                    Id_TaiKhoan=user,
+                    Id_HLV=hlv_ref,
+                    HoTen=name,
+                    NgaySinh=dob,
+                    GioiTinh=gender,
+                )
+
+        return Response(
+            {
+                'id': user.id,
+                'phone': user.username,
+                'role': role,
+                'status': 'Hoạt động',
+                'is_active': True,
+                'name': name,
+                'dob': dob,
+                'gender': gender,
+                'hlv_id': hlv_ref.Id_TaiKhoan_id if role == 'hoivien' and hlv_ref else None,
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class AccountStatusView(APIView):

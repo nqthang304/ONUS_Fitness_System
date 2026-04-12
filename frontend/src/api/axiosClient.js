@@ -37,7 +37,10 @@ axiosClient.interceptors.response.use(
         return response;
     },
     (error) => {
-        if (error?.response?.status === 401) {
+        const requestUrl = String(error?.config?.url || '');
+        const isLoginRequest = requestUrl.includes('/api/login/');
+
+        if (error?.response?.status === 401 && !isLoginRequest) {
             console.error("Phiên đăng nhập hết hạn hoặc không hợp lệ!");
             
             localStorage.clear();

@@ -67,10 +67,44 @@ const AdminAccountPage = () => {
   const handleOpenDelete = (acc) => { setSelectedAccount(acc); setIsDeleteOpen(true); };
 
   // Handlers thực thi logic (Tương tác BE sau này)
-  const handleSaveAccount = (formData) => {
-    // Nếu có selectedAccount -> Cập nhật. Nếu không -> Thêm mới.
-    console.log("Saving data to API:", formData);
-    setIsFormOpen(false);
+  const handleSaveAccount = async (formData) => {
+    // TODO: cập nhật tài khoản (edit) sẽ nối API update sau.
+    if (selectedAccount) {
+      console.log("Update account API (pending):", formData);
+      setIsFormOpen(false);
+      return;
+    }
+
+    try {
+      const payload = {
+        name: formData.name,
+        phone: formData.phone,
+        role: formData.role,
+        dob: formData.dob,
+        gender: formData.gender,
+        hlv_id: formData.hlvId ? Number(formData.hlvId) : null,
+      };
+
+      const response = await profileApi.createAccount(payload);
+      const created = response?.data;
+      const normalized = {
+        id: created.id,
+        name: created.name || "Chưa cập nhật",
+        phone: created.phone || "",
+        role: created.role === "hlv" ? "HLV" : created.role === "hoivien" ? "Hội viên" : "Admin",
+        status: created.status || (created.is_active ? "Hoạt động" : "Bị khóa"),
+        dob: created.dob || "",
+        gender: created.gender || "",
+        hlvId: created.hlv_id ? String(created.hlv_id) : "",
+      };
+
+      setAccounts((prev) => [normalized, ...prev]);
+      setIsFormOpen(false);
+    } catch (error) {
+      const detail = error?.response?.data?.detail || "Không thể tạo tài khoản.";
+      console.error("Lỗi khi tạo tài khoản:", error?.response?.data || error);
+      throw new Error(detail);
+    }
   };
 
   const handleConfirmStatus = async () => {

@@ -18,6 +18,9 @@ const profileApi = {
     getAllAccounts: () => {
         return axiosClient.get('/api/accounts/');
     },
+    createAccount: (payload) => {
+        return axiosClient.post('/api/accounts/', payload);
+    },
     updateAccountStatus: (userId, isActive) => {
         return axiosClient.patch(`/api/accounts/${userId}/status/`, { is_active: isActive });
     }
