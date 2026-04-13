@@ -37,12 +37,12 @@ class ChiTietBuaAn(models.Model):
 
 
 class BaiTap(models.Model):
-    Id_HoiVien = models.ForeignKey('accounts.HoiVien', on_delete=models.PROTECT)
+    Id_HoiVien = models.ForeignKey('accounts.HoiVien', on_delete=models.CASCADE)
     ThuTuNgayTap = models.CharField(max_length=20)
 
 
 class ChiTietBaiTap(models.Model):
-    Id_BaiTap = models.ForeignKey(BaiTap, on_delete=models.PROTECT)
+    Id_BaiTap = models.ForeignKey(BaiTap, on_delete=models.CASCADE)
     MucLuc = models.CharField(max_length=20, null=True, blank=True)
     TenBai = models.CharField(max_length=255)
     ThoiGian = models.CharField(max_length=50, null=True, blank=True)
