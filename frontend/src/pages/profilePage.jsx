@@ -11,7 +11,7 @@ const normalizeProfile = (data) => {
   if (!data) return null;
 
   return {
-    id: String(data.Id_HoiVien || data.Id_HLV || data.account_info?.username || data.username || ""),
+    id: String(data.account_info?.id || data.id || data.Id_HoiVien || data.Id_HLV || data.account_info?.username || data.username || ""),
     name: data.HoTen || "",
     phone: data.account_info?.username || data.username || "",
     dob: data.NgaySinh || "",
@@ -48,6 +48,8 @@ const ProfilePage = () => {
     !isViewingOtherProfile ||
     targetMemberId === currentUserId ||
     targetMemberUsername === currentUsername;
+  const canEditProfileInfo = isOwnerProfile && currentRole !== "admin";
+  const canChangePassword = isOwnerProfile;
 
   useEffect(() => {
     let isCancelled = false;
@@ -187,10 +189,10 @@ const ProfilePage = () => {
         onSave={handleSaveProfile}
         isEditing={isEditing}
         setIsEditing={setIsEditing}
-        canEdit={isOwnerProfile}
+        canEdit={canEditProfileInfo}
       />
 
-      {isOwnerProfile && !isEditing && (
+      {canChangePassword && !isEditing && (
         <Card className="p-6 md:p-8 rounded-2xl border-slate-100 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h3 className="font-bold text-lg text-slate-900">Bảo mật</h3>

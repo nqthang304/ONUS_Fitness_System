@@ -14,7 +14,7 @@ const normalizeUserRole = (userData) => {
 const normalizeAuthenticatedUser = (baseUser, profileData) => {
   if (!baseUser) return null;
 
-  const accountId = profileData?.account_info?.id ?? profileData?.id ?? baseUser.id ?? "";
+  const accountId = profileData?.account_info?.id ?? profileData?.id ?? baseUser.id ?? baseUser.username ?? "";
 
   return {
     ...baseUser,

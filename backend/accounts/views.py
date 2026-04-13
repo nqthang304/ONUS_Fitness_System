@@ -62,10 +62,12 @@ class UserProfileView(APIView):
             return data
 
         return {
+            'id': user_to_fetch.id,
             'HoTen': 'Admin',
             'role': 'admin',
             'username': user_to_fetch.username,
             'account_info': {
+                'id': user_to_fetch.id,
                 'username': user_to_fetch.username,
                 'is_active': user_to_fetch.is_active,
             },
