@@ -29,7 +29,7 @@ class ChiTietBuaAn(models.Model):
     # Sử dụng Id_LichAn như trong ERD và thiết kế lớp
     Id_LichAn = models.ForeignKey(BuaAn, on_delete=models.CASCADE)
     TenThucPham = models.CharField(max_length=100)
-    Luong = models.DecimalField(max_digits=6, decimal_places=2)
+    Luong = models.CharField(max_length=50)
     Calo = models.DecimalField(max_digits=7, decimal_places=2)
     Protein = models.DecimalField(max_digits=6, decimal_places=2)
     Carb = models.DecimalField(max_digits=6, decimal_places=2)

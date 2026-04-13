@@ -5,6 +5,18 @@ const workoutApi = {
     getWorkoutByUserId: (userId) => {
         return axiosClient.get(`/api/bai-tap/user/${userId}/`);
     },
+    createWorkoutDay: (payload) => {
+        return axiosClient.post('/api/bai-tap/create-day/', payload);
+    },
+    createWorkoutExercise: (payload) => {
+        return axiosClient.post('/api/bai-tap/create-exercise/', payload);
+    },
+    deleteWorkoutDay: (baitapId) => {
+        return axiosClient.delete(`/api/bai-tap/delete-day/${baitapId}/`);
+    },
+    deleteWorkoutExercise: (detailId) => {
+        return axiosClient.delete(`/api/bai-tap/delete-exercise/${detailId}/`);
+    },
 };
 
 export default workoutApi;

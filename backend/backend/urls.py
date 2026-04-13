@@ -19,7 +19,21 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from accounts.views import AccountDetailView, AccountListView, AccountStatusView, ChangePasswordView, CustomLoginView, SelfProfileUpdateView, TrainerMemberListView, UserProfileView
-from fitness.views import LichTapByRoleView, CreateLichTapView, DeleteLichTapView, BaiTapByUserIdView
+from fitness.views import (
+    LichTapByRoleView,
+    CreateLichTapView,
+    DeleteLichTapView,
+    BaiTapByUserIdView,
+    CreateBaiTapView,
+    CreateChiTietBaiTapView,
+    DeleteBaiTapView,
+    DeleteChiTietBaiTapView,
+    BuaAnByUserIdView,
+    CreateBuaAnView,
+    CreateChiTietBuaAnView,
+    DeleteBuaAnView,
+    DeleteChiTietBuaAnView,
+)
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
@@ -37,6 +51,15 @@ urlpatterns = [
     path('api/lich-tap/create/', CreateLichTapView.as_view(), name='create-lich-tap'),
     path('api/lich-tap/delete/<int:schedule_id>/', DeleteLichTapView.as_view(), name='delete-lich-tap'),
     path('api/bai-tap/user/<int:user_id>/', BaiTapByUserIdView.as_view(), name='bai-tap-by-user-id'),
+    path('api/bai-tap/create-day/', CreateBaiTapView.as_view(), name='create-bai-tap-day'),
+    path('api/bai-tap/create-exercise/', CreateChiTietBaiTapView.as_view(), name='create-bai-tap-exercise'),
+    path('api/bai-tap/delete-day/<int:baitap_id>/', DeleteBaiTapView.as_view(), name='delete-bai-tap-day'),
+    path('api/bai-tap/delete-exercise/<int:detail_id>/', DeleteChiTietBaiTapView.as_view(), name='delete-bai-tap-exercise'),
+    path('api/lich-an/user/<int:user_id>/', BuaAnByUserIdView.as_view(), name='lich-an-by-user-id'),
+    path('api/lich-an/create-meal/', CreateBuaAnView.as_view(), name='create-bua-an'),
+    path('api/lich-an/create-food/', CreateChiTietBuaAnView.as_view(), name='create-chi-tiet-bua-an'),
+    path('api/lich-an/delete-meal/<int:bua_an_id>/', DeleteBuaAnView.as_view(), name='delete-bua-an'),
+    path('api/lich-an/delete-food/<int:detail_id>/', DeleteChiTietBuaAnView.as_view(), name='delete-chi-tiet-bua-an'),
 ]
 
 if settings.DEBUG:

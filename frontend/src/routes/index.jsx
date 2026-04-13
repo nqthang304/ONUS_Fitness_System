@@ -60,16 +60,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "bai-tap",
-        children: [
-          {
-            index: true,
-            element: <WorkoutSchedulePage />
-          }, 
-          {
-            path: ":memberId",
-            element: <WorkoutSchedulePage />
-          }
-        ]
+        element: <WorkoutSchedulePage />
       },
       {
         path: "lich-an",

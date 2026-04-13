@@ -4,8 +4,8 @@ import { useAuth } from "@/providers/auth.providers";
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
-  const { user } = useAuth();
-  const currentUserId = String(user?.id || "");
+  const { currentUserId } = useAuth();
+  const normalizedUserId = String(currentUserId || "");
 
   const [thongBao] = useState([
     {
@@ -32,10 +32,10 @@ export const NotificationProvider = ({ children }) => {
   ]);
 
   const notifications = useMemo(() => {
-    if (!currentUserId) return [];
+    if (!normalizedUserId) return [];
 
     return chiTietThongBao
-      .filter((detail) => String(detail.Id_NguoiNhan) === currentUserId)
+      .filter((detail) => String(detail.Id_NguoiNhan) === normalizedUserId)
       .map((detail) => {
         const thongBaoGoc = thongBao.find((tb) => tb.Id === detail.Id_ThongBao);
         if (!thongBaoGoc) return null;
@@ -48,7 +48,7 @@ export const NotificationProvider = ({ children }) => {
       })
       .filter(Boolean)
       .sort((a, b) => new Date(b.NgayTao) - new Date(a.NgayTao));
-  }, [chiTietThongBao, currentUserId, thongBao]);
+  }, [chiTietThongBao, normalizedUserId, thongBao]);
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.DaXem).length,
@@ -58,7 +58,7 @@ export const NotificationProvider = ({ children }) => {
   const markAsRead = (chiTietId) => {
     setChiTietThongBao((prev) =>
       prev.map((detail) =>
-        detail.Id === chiTietId && String(detail.Id_NguoiNhan) === currentUserId
+        detail.Id === chiTietId && String(detail.Id_NguoiNhan) === normalizedUserId
           ? { ...detail, DaXem: true }
           : detail
       )
@@ -68,7 +68,7 @@ export const NotificationProvider = ({ children }) => {
   const markAllAsRead = () => {
     setChiTietThongBao((prev) =>
       prev.map((detail) =>
-        String(detail.Id_NguoiNhan) === currentUserId
+        String(detail.Id_NguoiNhan) === normalizedUserId
           ? { ...detail, DaXem: true }
           : detail
       )

@@ -6,8 +6,43 @@ from datetime import time
 
 from accounts.models import HLV, HoiVien
 
-from .models import LichTap, BaiTap
-from .serializers import LichTapNormalizedSerializer, BaiTapTongHopSerializer
+from .models import LichTap, BuaAn, BaiTap, ChiTietBuaAn, ChiTietBaiTap
+from .serializers import (
+	LichTapNormalizedSerializer,
+	BaiTapTongHopSerializer,
+	BaiTapCreateSerializer,
+	ChiTietBaiTapCreateSerializer,
+	BuaAnTongHopSerializer,
+	BuaAnCreateSerializer,
+	ChiTietBuaAnCreateSerializer,
+)
+
+
+MEAL_TYPE_MAP = {
+	'breakfast': 'BuaSang',
+	'lunch': 'BuaTrua',
+	'dinner': 'BuaToi',
+	'snack': 'BuaPhu',
+	'BuaSang': 'BuaSang',
+	'BuaTrua': 'BuaTrua',
+	'BuaToi': 'BuaToi',
+	'BuaPhu': 'BuaPhu',
+}
+
+REVERSE_MEAL_TYPE_MAP = {
+	'BuaSang': 'breakfast',
+	'BuaTrua': 'lunch',
+	'BuaToi': 'dinner',
+	'BuaPhu': 'snack',
+}
+
+
+def normalize_meal_type(value):
+	return MEAL_TYPE_MAP.get(value, value)
+
+
+def meal_key_from_value(value):
+	return REVERSE_MEAL_TYPE_MAP.get(value, 'snack')
 
 
 class LichTapByRoleView(APIView):
@@ -280,4 +315,453 @@ class BaiTapByUserIdView(APIView):
 			},
 			status=status.HTTP_200_OK,
 		)
+
+
+class CreateBaiTapView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request):
+		user = request.user
+
+		if not user.groups.filter(name='hlv').exists():
+			return Response(
+				{'detail': 'Chỉ huấn luyện viên mới có thể tạo ngày tập.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		try:
+			hlv = HLV.objects.get(Id_TaiKhoan=user)
+		except HLV.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy hồ sơ huấn luyện viên.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		serializer = BaiTapCreateSerializer(data=request.data)
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		payload = serializer.validated_data
+		try:
+			hoi_vien = HoiVien.objects.select_related('Id_HLV').get(id=payload['hoi_vien_id'], Id_HLV=hlv)
+		except HoiVien.DoesNotExist:
+			return Response(
+				{'detail': 'Hội viên không tồn tại hoặc không thuộc quản lý của bạn.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		thu_tu_ngay_tap = payload.get('thu_tu_ngay_tap')
+		if not thu_tu_ngay_tap:
+			thu_tu_ngay_tap = str(BaiTap.objects.filter(Id_HoiVien=hoi_vien).count() + 1)
+
+		new_day = BaiTap.objects.create(
+			Id_HoiVien=hoi_vien,
+			ThuTuNgayTap=thu_tu_ngay_tap,
+		)
+
+		return Response(
+			{
+				'detail': 'Tạo ngày tập thành công.',
+				'data': {
+					'Id_BaiTap': new_day.id,
+					'id_hoivien': new_day.Id_HoiVien_id,
+					'ThuTuNgayTap': new_day.ThuTuNgayTap,
+					'chitietbaitap': [],
+				},
+			},
+			status=status.HTTP_201_CREATED,
+		)
+
+
+class CreateChiTietBaiTapView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request):
+		user = request.user
+
+		if not user.groups.filter(name='hlv').exists():
+			return Response(
+				{'detail': 'Chỉ huấn luyện viên mới có thể thêm bài tập.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		try:
+			HLV.objects.get(Id_TaiKhoan=user)
+		except HLV.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy hồ sơ huấn luyện viên.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		serializer = ChiTietBaiTapCreateSerializer(data=request.data)
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		payload = serializer.validated_data
+		try:
+			baitap = BaiTap.objects.select_related('Id_HoiVien__Id_HLV').get(id=payload['id_baitap'])
+		except BaiTap.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy ngày tập.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		if baitap.Id_HoiVien.Id_HLV.Id_TaiKhoan_id != user.id:
+			return Response(
+				{'detail': 'Ngày tập không thuộc quản lý của bạn.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		detail = ChiTietBaiTap.objects.create(
+			Id_BaiTap=baitap,
+			MucLuc=payload['muc_luc'],
+			TenBai=payload['ten_bai'],
+			ThoiGian=payload.get('thoi_gian') or '',
+			SoLan=payload.get('so_lan'),
+			SoHiep=payload.get('so_hiep'),
+			Nghi=payload.get('nghi') or '',
+			CuongDo=payload.get('cuong_do') or '',
+		)
+
+		return Response(
+			{
+				'detail': 'Thêm bài tập thành công.',
+				'data': {
+					'id': detail.id,
+					'Id_BaiTap': baitap.id,
+					'MucLuc': detail.MucLuc,
+					'TenBai': detail.TenBai,
+					'ThoiGian': detail.ThoiGian,
+					'SoLan': detail.SoLan,
+					'SoHiep': detail.SoHiep,
+					'Nghi': detail.Nghi,
+					'CuongDo': detail.CuongDo,
+				},
+			},
+			status=status.HTTP_201_CREATED,
+		)
+
+
+class DeleteBaiTapView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def delete(self, request, baitap_id):
+		user = request.user
+
+		if not user.groups.filter(name='hlv').exists():
+			return Response(
+				{'detail': 'Chỉ huấn luyện viên mới có thể xóa ngày tập.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		try:
+			HLV.objects.get(Id_TaiKhoan=user)
+		except HLV.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy hồ sơ huấn luyện viên.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		try:
+			baitap = BaiTap.objects.select_related('Id_HoiVien__Id_HLV').get(id=baitap_id)
+		except BaiTap.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy ngày tập.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		if baitap.Id_HoiVien.Id_HLV.Id_TaiKhoan_id != user.id:
+			return Response(
+				{'detail': 'Ngày tập không thuộc quản lý của bạn.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		baitap.delete()
+		return Response({'detail': 'Xóa ngày tập thành công.', 'id': baitap_id}, status=status.HTTP_200_OK)
+
+
+class DeleteChiTietBaiTapView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def delete(self, request, detail_id):
+		user = request.user
+
+		if not user.groups.filter(name='hlv').exists():
+			return Response(
+				{'detail': 'Chỉ huấn luyện viên mới có thể xóa bài tập.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		try:
+			HLV.objects.get(Id_TaiKhoan=user)
+		except HLV.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy hồ sơ huấn luyện viên.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		try:
+			detail = ChiTietBaiTap.objects.select_related('Id_BaiTap__Id_HoiVien__Id_HLV').get(id=detail_id)
+		except ChiTietBaiTap.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy bài tập.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		if detail.Id_BaiTap.Id_HoiVien.Id_HLV.Id_TaiKhoan_id != user.id:
+			return Response(
+				{'detail': 'Bài tập không thuộc quản lý của bạn.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		detail.delete()
+		return Response({'detail': 'Xóa bài tập thành công.', 'id': detail_id}, status=status.HTTP_200_OK)
+
+
+class BuaAnByUserIdView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def get(self, request, user_id):
+		request_user = request.user
+
+		try:
+			target_hoi_vien = HoiVien.objects.select_related('Id_HLV', 'Id_TaiKhoan').get(
+				Id_TaiKhoan_id=user_id,
+			)
+		except HoiVien.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy hội viên tương ứng với user_id.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		if request_user.groups.filter(name='hoivien').exists():
+			if target_hoi_vien.Id_TaiKhoan_id != request_user.id:
+				return Response(
+					{'detail': 'Hội viên chỉ được xem lịch ăn của chính mình.'},
+					status=status.HTTP_403_FORBIDDEN,
+				)
+		elif request_user.groups.filter(name='hlv').exists():
+			try:
+				hlv_profile = HLV.objects.get(Id_TaiKhoan=request_user)
+			except HLV.DoesNotExist:
+				return Response(
+					{'detail': 'Không tìm thấy hồ sơ huấn luyện viên.'},
+					status=status.HTTP_404_NOT_FOUND,
+				)
+
+			if target_hoi_vien.Id_HLV_id != hlv_profile.id:
+				return Response(
+					{'detail': 'Hội viên không thuộc quản lý của bạn.'},
+					status=status.HTTP_403_FORBIDDEN,
+				)
+		else:
+			return Response(
+				{'detail': 'Bạn không có quyền truy cập dữ liệu lịch ăn.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		meal_qs = BuaAn.objects.filter(Id_HoiVien=target_hoi_vien).prefetch_related(
+			'chitietbuaan_set',
+		).order_by('id')
+
+		serializer = BuaAnTongHopSerializer(meal_qs, many=True)
+		return Response(
+			{
+				'user_id': user_id,
+				'count': len(serializer.data),
+				'results': serializer.data,
+			},
+			status=status.HTTP_200_OK,
+		)
+
+
+class CreateBuaAnView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request):
+		user = request.user
+
+		if not user.groups.filter(name='hlv').exists():
+			return Response(
+				{'detail': 'Chỉ huấn luyện viên mới có thể tạo bữa ăn.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		try:
+			hlv = HLV.objects.get(Id_TaiKhoan=user)
+		except HLV.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy hồ sơ huấn luyện viên.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		serializer = BuaAnCreateSerializer(data=request.data)
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		payload = serializer.validated_data
+		try:
+			hoi_vien = HoiVien.objects.select_related('Id_HLV').get(id=payload['hoi_vien_id'], Id_HLV=hlv)
+		except HoiVien.DoesNotExist:
+			return Response(
+				{'detail': 'Hội viên không tồn tại hoặc không thuộc quản lý của bạn.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		bua_an, created = BuaAn.objects.get_or_create(
+			Id_HoiVien=hoi_vien,
+			TenBua=payload['ten_bua'],
+		)
+
+		response_data = BuaAnTongHopSerializer(bua_an).data
+		return Response(
+			{
+				'detail': 'Tạo bữa ăn thành công.' if created else 'Bữa ăn đã tồn tại.',
+				'data': response_data,
+			},
+			status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+		)
+
+
+class CreateChiTietBuaAnView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request):
+		user = request.user
+
+		if not user.groups.filter(name='hlv').exists():
+			return Response(
+				{'detail': 'Chỉ huấn luyện viên mới có thể thêm món ăn.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		try:
+			HLV.objects.get(Id_TaiKhoan=user)
+		except HLV.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy hồ sơ huấn luyện viên.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		serializer = ChiTietBuaAnCreateSerializer(data=request.data)
+		if not serializer.is_valid():
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		payload = serializer.validated_data
+		try:
+			bua_an = BuaAn.objects.select_related('Id_HoiVien__Id_HLV').get(id=payload['id_lich_an'])
+		except BuaAn.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy bữa ăn.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		if bua_an.Id_HoiVien.Id_HLV.Id_TaiKhoan_id != user.id:
+			return Response(
+				{'detail': 'Bữa ăn không thuộc quản lý của bạn.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		detail = ChiTietBuaAn.objects.create(
+			Id_LichAn=bua_an,
+			TenThucPham=payload['ten_thuc_pham'],
+			Luong=payload['luong'],
+			Calo=payload['calo'],
+			Protein=payload['protein'],
+			Carb=payload['carb'],
+			Fat=payload['fat'],
+		)
+
+		return Response(
+			{
+				'detail': 'Thêm món ăn thành công.',
+				'data': {
+					'id': detail.id,
+					'Id_LichAn': bua_an.id,
+					'TenThucPham': detail.TenThucPham,
+					'Luong': detail.Luong,
+					'Calo': detail.Calo,
+					'Protein': detail.Protein,
+					'Carb': detail.Carb,
+					'Fat': detail.Fat,
+				},
+			},
+			status=status.HTTP_201_CREATED,
+		)
+
+
+class DeleteBuaAnView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def delete(self, request, bua_an_id):
+		user = request.user
+
+		if not user.groups.filter(name='hlv').exists():
+			return Response(
+				{'detail': 'Chỉ huấn luyện viên mới có thể xóa bữa ăn.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		try:
+			HLV.objects.get(Id_TaiKhoan=user)
+		except HLV.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy hồ sơ huấn luyện viên.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		try:
+			bua_an = BuaAn.objects.select_related('Id_HoiVien__Id_HLV').get(id=bua_an_id)
+		except BuaAn.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy bữa ăn.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		if bua_an.Id_HoiVien.Id_HLV.Id_TaiKhoan_id != user.id:
+			return Response(
+				{'detail': 'Bữa ăn không thuộc quản lý của bạn.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		bua_an.delete()
+		return Response({'detail': 'Xóa bữa ăn thành công.', 'id': bua_an_id}, status=status.HTTP_200_OK)
+
+
+class DeleteChiTietBuaAnView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def delete(self, request, detail_id):
+		user = request.user
+
+		if not user.groups.filter(name='hlv').exists():
+			return Response(
+				{'detail': 'Chỉ huấn luyện viên mới có thể xóa món ăn.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		try:
+			HLV.objects.get(Id_TaiKhoan=user)
+		except HLV.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy hồ sơ huấn luyện viên.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		try:
+			detail = ChiTietBuaAn.objects.select_related('Id_LichAn__Id_HoiVien__Id_HLV').get(id=detail_id)
+		except ChiTietBuaAn.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy món ăn.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		if detail.Id_LichAn.Id_HoiVien.Id_HLV.Id_TaiKhoan_id != user.id:
+			return Response(
+				{'detail': 'Món ăn không thuộc quản lý của bạn.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		detail.delete()
+		return Response({'detail': 'Xóa món ăn thành công.', 'id': detail_id}, status=status.HTTP_200_OK)
 
