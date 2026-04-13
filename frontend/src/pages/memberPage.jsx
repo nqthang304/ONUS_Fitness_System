@@ -38,6 +38,26 @@ const MemberPage = () => {
 
     // Xử lý khi nhấn nút bất kỳ
     const handleAction = (id, feature) => {
+        if (feature === 'ho-so-hoi-vien' && id) {
+            navigate('/ho-so-hoi-vien', { state: { memberId: String(id) } });
+            return;
+        }
+
+        if (feature === 'lich-an' && id) {
+            navigate('/lich-an', { state: { memberId: String(id) } });
+            return;
+        }
+
+        if (feature === 'bai-tap' && id) {
+            navigate('/bai-tap', { state: { memberId: String(id) } });
+            return;
+        }
+
+        if (feature === 'bai-tap') {
+            navigate('/bai-tap');
+            return;
+        }
+
         if (!id) {
             navigate(`/${feature}`);
             return;

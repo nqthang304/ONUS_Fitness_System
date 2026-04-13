@@ -64,10 +64,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "lich-an",
-        children: [
-          { index: true, element: <MealSchedulePage /> }, // Xem của bản thân (HoiVien)
-          { path: ":memberId", element: <MealSchedulePage /> }, // Xem của từng hội viên (HLV)
-        ]
+        element: <MealSchedulePage />
       },
       {
         path: 'ket-qua',
@@ -85,7 +82,7 @@ export const router = createBrowserRouter([
         element: <ProfilePage />
       },
       {
-        path: "ho-so-hoi-vien/:memberId",
+        path: "ho-so-hoi-vien",
         element: <ProfilePage />
       },
     ]

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "@/providers/auth.providers";
 import profileApi from "@/api/profileApi";
 import mealApi from "@/api/mealApi";
@@ -56,20 +56,29 @@ const normalizeMealFood = (food) => ({
 });
 
 const MealSchedulePage = () => {
-  const { memberId } = useParams();
-  const navigate = useNavigate();
+  const location = useLocation();
   const { role, currentUserId } = useAuth();
   const currentRole = String(role || "").toLowerCase();
-  const targetUserId = currentRole === "hoivien" ? String(currentUserId || "") : String(memberId || "");
+  const stateMemberId = String(location.state?.memberId || "");
+  const [selectedMember, setSelectedMember] = useState(stateMemberId);
+  const [isViewingMemberPlan, setIsViewingMemberPlan] = useState(currentRole === "hoivien" || Boolean(stateMemberId));
+  const targetUserId = currentRole === "hoivien" ? String(currentUserId || "") : String(selectedMember || "");
 
   useEffect(() => {
-    if (currentRole === "hoivien" && memberId && memberId !== String(currentUserId || "")) {
-      navigate("/lich-an", { replace: true });
+    if (currentRole === "hoivien") {
+      setIsViewingMemberPlan(true);
     }
     setIsEditing(false);
-  }, [currentRole, memberId, currentUserId, navigate]);
+  }, [currentRole, currentUserId]);
 
-  const [selectedMember, setSelectedMember] = useState(memberId || "");
+  useEffect(() => {
+    if (currentRole === "hoivien") return;
+    if (!stateMemberId) return;
+
+    setSelectedMember(stateMemberId);
+    setIsViewingMemberPlan(true);
+  }, [currentRole, stateMemberId]);
+
   const [members, setMembers] = useState([]);
   const [selfHoiVienId, setSelfHoiVienId] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -83,10 +92,6 @@ const MealSchedulePage = () => {
   const [currentMealType, setCurrentMealType] = useState("");
   const [newDish, setNewDish] = useState({ name: "", amount: "", calo: "", p: "", c: "", f: "" });
   const [deleteData, setDeleteData] = useState({ isOpen: false, mealType: "", dishId: null });
-
-  useEffect(() => {
-    setSelectedMember(memberId || "");
-  }, [memberId]);
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -162,8 +167,23 @@ const MealSchedulePage = () => {
   };
 
   useEffect(() => {
+    if (currentRole === "hoivien") return;
+
+    if (!selectedMember) {
+      setIsViewingMemberPlan(false);
+    }
+  }, [currentRole, selectedMember]);
+
+  useEffect(() => {
+    if (currentRole !== "hoivien" && !isViewingMemberPlan) {
+      setMeals(INITIAL_MEALS);
+      setMealMeta(INITIAL_MEAL_META);
+      setPageError("");
+      return;
+    }
+
     loadMeals();
-  }, [targetUserId]);
+  }, [targetUserId, currentRole, isViewingMemberPlan]);
 
   const resolveHoiVienId = () => {
     if (currentRole === "hoivien") {
@@ -260,12 +280,15 @@ const MealSchedulePage = () => {
   };
 
   // Nếu là PT và chưa chọn ID -> Bật Component Selector
-  if (currentRole !== "hoivien" && !memberId) {
+  if (currentRole !== "hoivien" && !isViewingMemberPlan) {
     return (
       <MemberSelector 
         selectedMember={selectedMember} 
         onSelect={setSelectedMember} 
-        onView={() => navigate(`/lich-an/${selectedMember}`)} 
+        onView={() => {
+          if (!selectedMember) return;
+          setIsViewingMemberPlan(true);
+        }} 
         members={members} 
       />
     );
@@ -278,7 +301,13 @@ const MealSchedulePage = () => {
         isEditing={isEditing} 
         setIsEditing={setIsEditing} 
         role={currentRole} 
-        onBack={() => navigate('/lich-an')} 
+        onBack={() => {
+          if (currentRole === "hoivien") return;
+          setIsViewingMemberPlan(false);
+          setIsEditing(false);
+          setPageError("");
+          setAddModalError("");
+        }} 
       />
 
       {isLoading && (
@@ -294,7 +323,7 @@ const MealSchedulePage = () => {
       )}
 
       <MacroOverview 
-        memberId={memberId} 
+        memberId={targetUserId} 
         isEditing={isEditing} 
         totals={totals} 
         members={members} 

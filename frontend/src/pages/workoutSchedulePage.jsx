@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { WorkoutMemberSelector } from "@/features/workoutSchedule/WorkoutMemberSelector";
 import { WorkoutTopBar } from "@/features/workoutSchedule/WorkoutTopBar";
 import { DayTabs } from "@/features/workoutSchedule/DayTabs";
@@ -56,9 +57,12 @@ const normalizeWorkoutExercise = (item, fallbackDayId, fallbackIndex) => ({
 });
 
 const WorkoutSchedulePage = () => {
+  const location = useLocation();
+  const stateMemberId = String(location.state?.memberId || "");
+
   // STATE
-  const [selectedMember, setSelectedMember] = useState("");
-  const [activeMemberId, setActiveMemberId] = useState("");
+  const [selectedMember, setSelectedMember] = useState(stateMemberId);
+  const [activeMemberId, setActiveMemberId] = useState(stateMemberId);
   const [days, setDays] = useState([]);
   const [activeDayId, setActiveDayId] = useState(null);
   const [exercises, setExercises] = useState([]);
@@ -87,6 +91,12 @@ const WorkoutSchedulePage = () => {
 
     fetchMembers();
   }, []);
+
+  useEffect(() => {
+    if (!stateMemberId) return;
+    setSelectedMember(stateMemberId);
+    setActiveMemberId(stateMemberId);
+  }, [stateMemberId]);
 
   const loadWorkout = async (memberId) => {
     if (!memberId) return;
