@@ -38,6 +38,10 @@ const MemberPage = () => {
 
     // Xử lý khi nhấn nút bất kỳ
     const handleAction = (id, feature) => {
+        if (!id) {
+            navigate(`/${feature}`);
+            return;
+        }
         navigate(`/${feature}/${id}`);
     };
 

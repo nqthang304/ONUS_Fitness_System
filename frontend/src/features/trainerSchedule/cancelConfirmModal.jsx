@@ -1,6 +1,6 @@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
-export const CancelConfirmModal = ({ isOpen, onClose, onConfirm, scheduleData }) => {
+export const CancelConfirmModal = ({ isOpen, onClose, onConfirm, isLoading = false, scheduleData }) => {
   if (!scheduleData) return null;
 
   return (
@@ -13,8 +13,10 @@ export const CancelConfirmModal = ({ isOpen, onClose, onConfirm, scheduleData })
           </AlertDialogTitle>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex flex-row w-full gap-3 mt-4 sm:space-x-0">
-          <AlertDialogCancel className="flex-1 mt-0 rounded-xl bg-slate-100 hover:bg-slate-200 border-none text-slate-700">Hủy</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className="flex-1 rounded-xl bg-red-600 hover:bg-red-700">Xác nhận xóa</AlertDialogAction>
+          <AlertDialogCancel disabled={isLoading} className="flex-1 mt-0 rounded-xl bg-slate-100 hover:bg-slate-200 border-none text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed">Hủy</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm} disabled={isLoading} className="flex-1 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">
+            {isLoading ? "Đang xóa..." : "Xác nhận xóa"}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import { parseTimeToMinutes } from "./mockData";
 
-export const CalendarGrid = ({ schedules, members, onDeleteClick, hideDelete = false, getScheduleLabel }) => {
+export const CalendarGrid = ({ schedules, onDeleteClick, hideDelete = false, getScheduleLabel }) => {
   const days = [
     { label: "Thứ 2", value: 2 }, { label: "Thứ 3", value: 3 },
     { label: "Thứ 4", value: 4 }, { label: "Thứ 5", value: 5 },
@@ -56,8 +56,8 @@ export const CalendarGrid = ({ schedules, members, onDeleteClick, hideDelete = f
                 const duration = endMins - startMins;
                 const topPosition = startMins - (START_HOUR * 60);
                 
-                // Lấy tên hội viên
-                const memberName = members.find(m => m.Id_TaiKhoan === sch.Id_HoiVien)?.HoTen || "Hội viên";
+                // Lấy tên hội viên trực tiếp từ dữ liệu lịch trả về từ BE
+                const memberName = sch.HoiVienHoTen || "Hội viên";
                 const scheduleLabel = getScheduleLabel
                   ? getScheduleLabel({ schedule: sch, memberName })
                   : memberName;

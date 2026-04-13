@@ -10,7 +10,7 @@ from datetime import date
 import logging
 import json
 from .models import HLV, HoiVien
-from .serializers import CustomTokenObtainPairSerializer, ChangePasswordSerializer, HoiVienProfileSerializer
+from .serializers import CustomTokenObtainPairSerializer, ChangePasswordSerializer, HoiVienProfileSerializer, HLVProfileSerializer
 from fitness.models import LichTap
 
 logger = logging.getLogger(__name__)
@@ -46,17 +46,9 @@ class UserProfileView(APIView):
             except HLV.DoesNotExist:
                 return None
 
-            return {
-                'id': profile.pk,
-                'HoTen': profile.HoTen,
-                'NgaySinh': profile.NgaySinh,
-                'GioiTinh': profile.GioiTinh,
-                'account_info': {
-                    'username': user_to_fetch.username,
-                    'is_active': user_to_fetch.is_active,
-                },
-                'role': 'hlv',
-            }
+            data = HLVProfileSerializer(profile).data
+            data['role'] = 'hlv'
+            return data
 
         if user_to_fetch.groups.filter(name='hoivien').exists():
             try:
@@ -64,20 +56,10 @@ class UserProfileView(APIView):
             except HoiVien.DoesNotExist:
                 return None
 
-            return {
-                'id': profile.pk,
-                'Id_HLV': profile.Id_HLV.pk if profile.Id_HLV else None,
-                'HoTen': profile.HoTen,
-                'NgaySinh': profile.NgaySinh,
-                'GioiTinh': profile.GioiTinh,
-                'ten_hlv': profile.Id_HLV.HoTen if profile.Id_HLV else None,
-                'hlv_id': profile.Id_HLV.pk if profile.Id_HLV else None,
-                'account_info': {
-                    'username': user_to_fetch.username,
-                    'is_active': user_to_fetch.is_active,
-                },
-                'role': 'hoivien',
-            }
+            data = HoiVienProfileSerializer(profile).data
+            data['Id_HLV'] = data.get('hlv_id')
+            data['role'] = 'hoivien'
+            return data
 
         return {
             'HoTen': 'Admin',

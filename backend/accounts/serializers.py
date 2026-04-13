@@ -53,7 +53,7 @@ class HLVProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = HLV
         fields = [
-            'Id_HLV', 
+            'id', 
             'HoTen', 
             'NgaySinh', 
             'GioiTinh', 
@@ -65,7 +65,7 @@ class HoiVienProfileSerializer(serializers.ModelSerializer):
     
     ten_hlv = serializers.ReadOnlyField(source='Id_HLV.HoTen')
     
-    hlv_id = serializers.ReadOnlyField(source='Id_HLV.Id_HLV')
+    hlv_id = serializers.ReadOnlyField(source='Id_HLV.id')
 
     class Meta:
         model = HoiVien
