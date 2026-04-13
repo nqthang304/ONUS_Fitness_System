@@ -42,8 +42,16 @@ class BaiTap(models.Model):
 
 
 class ChiTietBaiTap(models.Model):
+
+    MUC_LUC_CHOICES = [
+        ('KhoiDong', 'KhoiDong'),
+        ('BaiTapChinh', 'BaiTapChinh'),
+        ('Cardio', 'Cardio'),
+        ('GianCo', 'GianCo'),
+    ]
+
     Id_BaiTap = models.ForeignKey(BaiTap, on_delete=models.CASCADE)
-    MucLuc = models.CharField(max_length=20, null=True, blank=True)
+    MucLuc = models.CharField(max_length=20, choices=MUC_LUC_CHOICES, null=True, blank=True)
     TenBai = models.CharField(max_length=255)
     ThoiGian = models.CharField(max_length=50, null=True, blank=True)
     SoLan = models.IntegerField(null=True, blank=True)

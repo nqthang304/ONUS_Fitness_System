@@ -31,16 +31,17 @@ const ResultPage = () => {
   const { memberId } = useParams();
   const navigate = useNavigate();
   const { user, role } = useAuth();
+  const currentRole = String(role || "").toLowerCase();
 
   // Bảo mật: Ép hội viên về đúng URL của mình nếu cố tình nhập ID người khác
   useEffect(() => {
-    if (role === "HOIVIEN" && memberId && memberId !== String(user.id)) {
+    if (currentRole === "hoivien" && memberId && memberId !== String(user?.id)) {
       navigate("/ket-qua", { replace: true });
     }
-  }, [role, memberId, user?.id, navigate]);
+  }, [currentRole, memberId, user?.id, navigate]);
 
   // Xác định ID cần hiển thị (Hội viên thì tự lấy ID của mình, HLV thì lấy từ URL)
-  const activeMemberId = role === "HOIVIEN" ? String(user?.id) : memberId;
+  const activeMemberId = currentRole === "hoivien" ? String(user?.id) : memberId;
 
   const [selectedMember, setSelectedMember] = useState(activeMemberId || "");
   const [results, setResults] = useState(INITIAL_RESULTS);
@@ -72,7 +73,7 @@ const ResultPage = () => {
   };
 
   // Layout chọn hội viên cho HLV
-  if (role !== "HOIVIEN" && !memberId) {
+  if (currentRole !== "hoivien" && !memberId) {
     return (
       <ResultMemberSelector 
         selectedMember={selectedMember} 
@@ -86,10 +87,10 @@ const ResultPage = () => {
   return (
     <div className="flex flex-col gap-3 w-full p-4 font-figtree">
       <ResultHeader 
-        role={role} 
+        role={currentRole} 
         latestDate={latestResult?.NgayTao}
         onAddClick={() => setIsAddOpen(true)}
-        onBack={role !== "HOIVIEN" ? () => navigate('/ket-qua') : undefined}
+        onBack={currentRole !== "hoivien" ? () => navigate('/ket-qua') : undefined}
       />
 
       {currentMemberData && (

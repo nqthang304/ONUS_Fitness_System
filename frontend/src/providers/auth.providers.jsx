@@ -3,10 +3,18 @@ import authApi from "@/api/authApi";
 
 const AuthContext = createContext(null);
 
+const normalizeUserRole = (userData) => {
+  if (!userData) return null;
+  return {
+    ...userData,
+    role: String(userData.role || "").toLowerCase(),
+  };
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("onus_user");
-    return savedUser ? JSON.parse(savedUser) : null;
+    return savedUser ? normalizeUserRole(JSON.parse(savedUser)) : null;
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -30,10 +38,11 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("refresh_token", data.refresh);
 
       // Lưu thông tin người dùng (trừ mật khẩu) vào localStorage
-      localStorage.setItem("onus_user", JSON.stringify(data.user));
+      const normalizedUser = normalizeUserRole(data.user);
+      localStorage.setItem("onus_user", JSON.stringify(normalizedUser));
 
       // Cập nhật state người dùng
-      setUser(data.user);
+      setUser(normalizedUser);
       setIsLoading(false);
       window.location.href = "/";
       
@@ -91,7 +100,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     isLoggedIn: !!user,
-    role: user?.role,
+    role: String(user?.role || "").toLowerCase(),
     isLoading,
     login,
     logout,

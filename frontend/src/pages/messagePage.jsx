@@ -67,6 +67,7 @@ const formatThreadTime = (time) => time || "--:--";
 
 const MessagePage = () => {
   const { user, role } = useAuth();
+  const currentRole = String(role || "").toLowerCase();
   const currentUserId = String(user?.id || "");
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -79,12 +80,14 @@ const MessagePage = () => {
   const availablePartners = MOCK_CHAT_USERS.filter((chatUser) => {
     if (!currentUserId || chatUser.id === currentUserId) return false;
 
-    if (role === "HLV") {
-      return chatUser.role === "HOIVIEN" && String(chatUser.hlv_id) === currentUserId;
+    const partnerRole = String(chatUser.role || "").toLowerCase();
+
+    if (currentRole === "hlv") {
+      return partnerRole === "hoivien" && String(chatUser.hlv_id) === currentUserId;
     }
 
-    if (role === "HOIVIEN") {
-      return chatUser.role === "HLV" && chatUser.id === String(user?.hlv_id || "");
+    if (currentRole === "hoivien") {
+      return partnerRole === "hlv" && chatUser.id === String(user?.hlv_id || "");
     }
 
     return true;

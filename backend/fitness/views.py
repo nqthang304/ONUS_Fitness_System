@@ -6,8 +6,8 @@ from datetime import time
 
 from accounts.models import HLV, HoiVien
 
-from .models import LichTap
-from .serializers import LichTapNormalizedSerializer
+from .models import LichTap, BaiTap
+from .serializers import LichTapNormalizedSerializer, BaiTapTongHopSerializer
 
 
 class LichTapByRoleView(APIView):
@@ -218,6 +218,66 @@ class DeleteLichTapView(APIView):
 		schedule.delete()
 		return Response(
 			{'detail': 'Xóa lịch tập thành công.', 'id': schedule_id},
+			status=status.HTTP_200_OK,
+		)
+
+
+class BaiTapByUserIdView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def get(self, request, user_id):
+		request_user = request.user
+
+		try:
+			target_hoi_vien = HoiVien.objects.select_related('Id_HLV', 'Id_TaiKhoan').get(
+				Id_TaiKhoan_id=user_id,
+			)
+		except HoiVien.DoesNotExist:
+			return Response(
+				{'detail': 'Không tìm thấy hội viên tương ứng với user_id.'},
+				status=status.HTTP_404_NOT_FOUND,
+			)
+
+		# Hội viên chỉ được xem phần của chính mình
+		if request_user.groups.filter(name='hoivien').exists():
+			if target_hoi_vien.Id_TaiKhoan_id != request_user.id:
+				return Response(
+					{'detail': 'Hội viên chỉ được xem bài tập của chính mình.'},
+					status=status.HTTP_403_FORBIDDEN,
+				)
+
+		# HLV chỉ được xem phần hội viên họ đang quản lý
+		elif request_user.groups.filter(name='hlv').exists():
+			try:
+				hlv_profile = HLV.objects.get(Id_TaiKhoan=request_user)
+			except HLV.DoesNotExist:
+				return Response(
+					{'detail': 'Không tìm thấy hồ sơ huấn luyện viên.'},
+					status=status.HTTP_404_NOT_FOUND,
+				)
+
+			if target_hoi_vien.Id_HLV_id != hlv_profile.id:
+				return Response(
+					{'detail': 'Hội viên không thuộc quản lý của bạn.'},
+					status=status.HTTP_403_FORBIDDEN,
+				)
+		else:
+			return Response(
+				{'detail': 'Bạn không có quyền truy cập dữ liệu bài tập.'},
+				status=status.HTTP_403_FORBIDDEN,
+			)
+
+		bai_tap_qs = BaiTap.objects.filter(Id_HoiVien=target_hoi_vien).prefetch_related(
+			'chitietbaitap_set',
+		).order_by('id')
+
+		serializer = BaiTapTongHopSerializer(bai_tap_qs, many=True)
+		return Response(
+			{
+				'user_id': user_id,
+				'count': len(serializer.data),
+				'results': serializer.data,
+			},
 			status=status.HTTP_200_OK,
 		)
 

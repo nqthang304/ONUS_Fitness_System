@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 export const ResultHeader = ({ role, latestDate, onAddClick, onBack }) => {
+  const currentRole = String(role || "").toLowerCase();
+
   // Chuyển đổi format ngày từ YYYY-MM-DD sang D-M-YYYY cho giống thiết kế
   const formatDate = (dateStr) => {
     if (!dateStr) return "Chưa có dữ liệu";
@@ -12,7 +14,7 @@ export const ResultHeader = ({ role, latestDate, onAddClick, onBack }) => {
   return (
     <div className="flex justify-between items-center pb-4 font-figtree">
       <div className="flex items-center gap-3">
-        {role !== "HOIVIEN" && onBack && (
+        {currentRole !== "hoivien" && onBack && (
           <Button variant="ghost" size="icon" onClick={onBack} className="-ml-2">
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -25,7 +27,7 @@ export const ResultHeader = ({ role, latestDate, onAddClick, onBack }) => {
         </div>
       </div>
 
-      {role !== "HOIVIEN" && (
+      {currentRole !== "hoivien" && (
         <Button className="rounded-xl bg-blue-600 hover:bg-blue-700 h-10 px-6 font-semibold shadow-sm" onClick={onAddClick}>
           Thêm mới
         </Button>

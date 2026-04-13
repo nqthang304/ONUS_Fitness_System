@@ -2,10 +2,12 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 export const ScheduleHeader = ({ isEditing, setIsEditing, role, onBack }) => {
+  const currentRole = String(role || "").toLowerCase();
+
   return (
     <div className="flex justify-between items-center pb-4 font-figtree">
       <div className="flex items-center gap-3">
-        {role !== "HOIVIEN" && (
+        {currentRole !== "hoivien" && (
           <Button variant="ghost" size="icon" onClick={onBack} className="-ml-2">
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -18,7 +20,7 @@ export const ScheduleHeader = ({ isEditing, setIsEditing, role, onBack }) => {
         </div>
       </div>
 
-      {role !== "HOIVIEN" && (
+      {currentRole !== "hoivien" && (
         <div className="flex gap-3">
           {isEditing ? (
             <>

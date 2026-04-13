@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import LichTap
+from .models import LichTap, BaiTap, ChiTietBaiTap
 
 
 class LichTapNormalizedSerializer(serializers.ModelSerializer):
@@ -24,4 +24,36 @@ class LichTapNormalizedSerializer(serializers.ModelSerializer):
 			'ThuTrongTuan',
 			'GioBatDau',
 			'GioKetThuc',
+		]
+
+
+class ChiTietBaiTapNestedSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = ChiTietBaiTap
+		fields = [
+			'id',
+			'MucLuc',
+			'TenBai',
+			'ThoiGian',
+			'SoLan',
+			'SoHiep',
+			'Nghi',
+			'CuongDo',
+		]
+
+
+class BaiTapTongHopSerializer(serializers.ModelSerializer):
+	id_hoivien = serializers.IntegerField(source='Id_HoiVien_id', read_only=True)
+	id_hlv = serializers.IntegerField(source='Id_HoiVien.Id_HLV_id', read_only=True)
+	Id_BaiTap = serializers.IntegerField(source='id', read_only=True)
+	chitietbaitap = ChiTietBaiTapNestedSerializer(source='chitietbaitap_set', many=True, read_only=True)
+
+	class Meta:
+		model = BaiTap
+		fields = [
+			'id_hoivien',
+			'id_hlv',
+			'Id_BaiTap',
+			'ThuTuNgayTap',
+			'chitietbaitap',
 		]

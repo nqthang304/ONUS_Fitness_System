@@ -31,13 +31,14 @@ const MealSchedulePage = () => {
   const { memberId } = useParams();
   const navigate = useNavigate();
   const { user, role } = useAuth();
+  const currentRole = String(role || "").toLowerCase();
 
   useEffect(() => {
-    if (role === "HOIVIEN" && memberId && memberId !== String(user.id)) {
+    if (currentRole === "hoivien" && memberId && memberId !== String(user?.id)) {
       navigate("/lich-an", { replace: true });
     }
     setIsEditing(false);
-  }, [role, memberId, user.id, navigate]);
+  }, [currentRole, memberId, user?.id, navigate]);
 
   const [selectedMember, setSelectedMember] = useState(memberId || "");
   const [isEditing, setIsEditing] = useState(false);
@@ -74,7 +75,7 @@ const MealSchedulePage = () => {
   };
 
   // Nếu là PT và chưa chọn ID -> Bật Component Selector
-  if (role !== "HOIVIEN" && !memberId) {
+  if (currentRole !== "hoivien" && !memberId) {
     return (
       <MemberSelector 
         selectedMember={selectedMember} 
@@ -91,7 +92,7 @@ const MealSchedulePage = () => {
       <ScheduleHeader 
         isEditing={isEditing} 
         setIsEditing={setIsEditing} 
-        role={role} 
+        role={currentRole} 
         onBack={() => navigate('/lich-an')} 
       />
 
