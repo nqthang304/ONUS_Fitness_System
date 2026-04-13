@@ -20,7 +20,12 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    const errorMessage = await login(phone, password);
+    if (!phone.trim() || !password.trim()) {
+      setError("Vui lòng nhập đầy đủ số điện thoại và mật khẩu.");
+      return;
+    }
+
+    const errorMessage = await login(phone.trim(), password);
 
     if (errorMessage) {
       setError(errorMessage);
@@ -64,6 +69,7 @@ const Login = () => {
                 autoComplete="username"
                 onFocus={(e) => e.target.removeAttribute('readonly')}
                 readOnly
+                disabled={isLoading}
                 className="rounded-lg px-4 py-3 border border-slate-200"
               />
             </div>
@@ -87,12 +93,14 @@ const Login = () => {
                   autoComplete="current-password"
                   onFocus={(e) => e.target.removeAttribute('readonly')}
                   readOnly
+                  disabled={isLoading}
                   className="rounded-lg px-4 py-3 pr-12 border border-slate-200"
                 />
 
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
                 >
                   {showPassword ? (

@@ -1,22 +1,53 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Search, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { DB_TAI_KHOAN, DB_HOI_VIEN, DB_HLV, getMergedAccounts } from "@/features/adminAccount/mockData";
+import profileApi from "@/api/profileApi";
 import { AccountTable } from "@/features/adminAccount/accountTable";
 import { AccountModal } from "@/features/adminAccount/accountModal";
-import { ConfirmActionModal } from "@/features/adminAccount/actionModals";
+import { ActionResultModal, ConfirmActionModal } from "@/features/adminAccount/actionModals";
 
 const AdminAccountPage = () => {
   // States dữ liệu
-  const [accounts, setAccounts] = useState(getMergedAccounts(DB_TAI_KHOAN, DB_HOI_VIEN, DB_HLV));
+  const [accounts, setAccounts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const response = await profileApi.getAllAccounts();
+        const normalized = Array.isArray(response.data)
+          ? response.data.map((acc) => ({
+              id: acc.id,
+              name: acc.name || "Chưa cập nhật",
+              phone: acc.phone || "",
+              role: acc.role === "hlv" ? "HLV" : acc.role === "hoivien" ? "Hội viên" : "Admin",
+              status: acc.status || (acc.is_active ? "Hoạt động" : "Bị khóa"),
+              dob: acc.dob || "",
+              gender: acc.gender || "",
+              hlvId: acc.hlv_id ? String(acc.hlv_id) : "",
+            }))
+          : [];
+
+        setAccounts(normalized);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách tài khoản:", error);
+      }
+    };
+
+    fetchAccounts();
+  }, []);
 
   // States Modals
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
+  const [resultModal, setResultModal] = useState({
+    isOpen: false,
+    isSuccess: true,
+    message: "",
+  });
   
   // State target cho thao tác
   const [selectedAccount, setSelectedAccount] = useState(null);
@@ -41,34 +72,119 @@ const AdminAccountPage = () => {
   const handleOpenDelete = (acc) => { setSelectedAccount(acc); setIsDeleteOpen(true); };
 
   // Handlers thực thi logic (Tương tác BE sau này)
-  const handleSaveAccount = (formData) => {
-    // Nếu có selectedAccount -> Cập nhật. Nếu không -> Thêm mới.
-    console.log("Saving data to API:", formData);
-    setIsFormOpen(false);
+  const handleSaveAccount = async (formData) => {
+    if (selectedAccount) {
+      try {
+        const payload = {
+          name: formData.name,
+          phone: formData.phone,
+          dob: formData.dob,
+          gender: formData.gender,
+          hlv_id: formData.role === "Hội viên" ? (formData.hlvId ? Number(formData.hlvId) : null) : null,
+        };
+
+        const response = await profileApi.updateAccount(selectedAccount.id, payload);
+        const updated = response?.data;
+        const normalized = {
+          id: updated.id,
+          name: updated.name || "Chưa cập nhật",
+          phone: updated.phone || "",
+          role: updated.role === "hlv" ? "HLV" : updated.role === "hoivien" ? "Hội viên" : "Admin",
+          status: updated.status || (updated.is_active ? "Hoạt động" : "Bị khóa"),
+          dob: updated.dob || "",
+          gender: updated.gender || "",
+          hlvId: updated.hlv_id ? String(updated.hlv_id) : "",
+        };
+
+        setAccounts((prev) => prev.map((acc) => (acc.id === selectedAccount.id ? normalized : acc)));
+        setIsFormOpen(false);
+        return;
+      } catch (error) {
+        const detail = error?.response?.data?.detail || "Không thể cập nhật tài khoản.";
+        console.error("Lỗi khi cập nhật tài khoản:", error?.response?.data || error);
+        throw new Error(detail);
+      }
+    }
+
+    try {
+      const payload = {
+        name: formData.name,
+        phone: formData.phone,
+        role: formData.role,
+        dob: formData.dob,
+        gender: formData.gender,
+        hlv_id: formData.hlvId ? Number(formData.hlvId) : null,
+      };
+
+      const response = await profileApi.createAccount(payload);
+      const created = response?.data;
+      const normalized = {
+        id: created.id,
+        name: created.name || "Chưa cập nhật",
+        phone: created.phone || "",
+        role: created.role === "hlv" ? "HLV" : created.role === "hoivien" ? "Hội viên" : "Admin",
+        status: created.status || (created.is_active ? "Hoạt động" : "Bị khóa"),
+        dob: created.dob || "",
+        gender: created.gender || "",
+        hlvId: created.hlv_id ? String(created.hlv_id) : "",
+      };
+
+      setAccounts((prev) => [normalized, ...prev]);
+      setIsFormOpen(false);
+    } catch (error) {
+      const detail = error?.response?.data?.detail || "Không thể tạo tài khoản.";
+      console.error("Lỗi khi tạo tài khoản:", error?.response?.data || error);
+      throw new Error(detail);
+    }
   };
 
-  const handleConfirmStatus = () => {
+  const handleConfirmStatus = async () => {
     if (!selectedAccount) return;
 
-    console.log("Toggle status for API:", selectedAccount.id);
-    setAccounts(prev =>
-      prev.map(acc =>
-        acc.id === selectedAccount.id
-          ? { ...acc, status: acc.status === "Hoạt động" ? "Bị khóa" : "Hoạt động" }
-          : acc
-      )
-    );
-    setIsStatusOpen(false);
-    setSelectedAccount(null);
+    try {
+      const nextIsActive = selectedAccount.status !== "Hoạt động";
+      const response = await profileApi.updateAccountStatus(selectedAccount.id, nextIsActive);
+      const updatedStatus = response?.data?.status || (response?.data?.is_active ? "Hoạt động" : "Bị khóa");
+
+      setAccounts(prev =>
+        prev.map(acc =>
+          acc.id === selectedAccount.id
+            ? { ...acc, status: updatedStatus }
+            : acc
+        )
+      );
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái tài khoản:", error);
+    } finally {
+      setIsStatusOpen(false);
+      setSelectedAccount(null);
+    }
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!selectedAccount) return;
 
-    console.log("Delete API:", selectedAccount.id);
-    setAccounts(prev => prev.filter(acc => acc.id !== selectedAccount.id));
-    setIsDeleteOpen(false);
-    setSelectedAccount(null);
+    try {
+      await profileApi.deleteAccount(selectedAccount.id);
+      setAccounts(prev => prev.filter(acc => acc.id !== selectedAccount.id));
+      setResultModal({
+        isOpen: true,
+        isSuccess: true,
+        message: `Đã xóa tài khoản ${selectedAccount.name} thành công.`,
+      });
+      setIsDeleteOpen(false);
+      setSelectedAccount(null);
+    } catch (error) {
+      const detail = error?.response?.data?.detail || "Không thể xóa tài khoản.";
+      console.error("Lỗi khi xóa tài khoản:", error?.response?.data || error);
+      setResultModal({
+        isOpen: true,
+        isSuccess: false,
+        message: detail,
+      });
+      setIsDeleteOpen(false);
+      setSelectedAccount(null);
+    }
   };
 
   return (
@@ -129,6 +245,13 @@ const AdminAccountPage = () => {
         title={`Xác nhận xoá tài khoản ${selectedAccount?.name}?`}
         confirmText="Xác nhận"
         isDestructive={true} 
+      />
+
+      <ActionResultModal
+        isOpen={resultModal.isOpen}
+        onClose={() => setResultModal((prev) => ({ ...prev, isOpen: false }))}
+        title={resultModal.message}
+        isSuccess={resultModal.isSuccess}
       />
     </div>
   );

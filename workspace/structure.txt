@@ -7180,12 +7180,31 @@ D:\DaiHoc\Source\ONUS_Fitness_System
         ││││└── REQUESTED 
         ││││└── top_level.txt 
         ││││└── WHEEL 
+      │││├── django_environ-0.13.0.dist-info/ 
+        ││││├── licenses/ 
+          │││││└── AUTHORS.rst 
+          │││││└── LICENSE.txt 
+        ││││└── INSTALLER 
+        ││││└── METADATA 
+        ││││└── RECORD 
+        ││││└── REQUESTED 
+        ││││└── top_level.txt 
+        ││││└── WHEEL 
       │││├── Django-4.2.8.dist-info/ 
         ││││└── AUTHORS 
         ││││└── entry_points.txt 
         ││││└── INSTALLER 
         ││││└── LICENSE 
         ││││└── LICENSE.python 
+        ││││└── METADATA 
+        ││││└── RECORD 
+        ││││└── REQUESTED 
+        ││││└── top_level.txt 
+        ││││└── WHEEL 
+      │││├── djangorestframework_simplejwt-5.5.1.dist-info/ 
+        ││││├── licenses/ 
+          │││││└── LICENSE.txt 
+        ││││└── INSTALLER 
         ││││└── METADATA 
         ││││└── RECORD 
         ││││└── REQUESTED 
@@ -7200,6 +7219,266 @@ D:\DaiHoc\Source\ONUS_Fitness_System
         ││││└── REQUESTED 
         ││││└── top_level.txt 
         ││││└── WHEEL 
+      │││├── environ/ 
+        ││││├── __pycache__/ 
+          │││││└── __init__.cpython-310.pyc 
+          │││││└── compat.cpython-310.pyc 
+          │││││└── environ.cpython-310.pyc 
+          │││││└── fileaware_mapping.cpython-310.pyc 
+        ││││└── __init__.py 
+        ││││└── compat.py 
+        ││││└── environ.py 
+        ││││└── fileaware_mapping.py 
+      │││├── jwt/ 
+        ││││├── __pycache__/ 
+          │││││└── __init__.cpython-310.pyc 
+          │││││└── algorithms.cpython-310.pyc 
+          │││││└── api_jwk.cpython-310.pyc 
+          │││││└── api_jws.cpython-310.pyc 
+          │││││└── api_jwt.cpython-310.pyc 
+          │││││└── exceptions.cpython-310.pyc 
+          │││││└── help.cpython-310.pyc 
+          │││││└── jwk_set_cache.cpython-310.pyc 
+          │││││└── jwks_client.cpython-310.pyc 
+          │││││└── types.cpython-310.pyc 
+          │││││└── utils.cpython-310.pyc 
+          │││││└── warnings.cpython-310.pyc 
+        ││││└── __init__.py 
+        ││││└── algorithms.py 
+        ││││└── api_jwk.py 
+        ││││└── api_jws.py 
+        ││││└── api_jwt.py 
+        ││││└── exceptions.py 
+        ││││└── help.py 
+        ││││└── jwk_set_cache.py 
+        ││││└── jwks_client.py 
+        ││││└── py.typed 
+        ││││└── types.py 
+        ││││└── utils.py 
+        ││││└── warnings.py 
+      │││├── PIL/ 
+        ││││├── __pycache__/ 
+          │││││└── __init__.cpython-310.pyc 
+          │││││└── __main__.cpython-310.pyc 
+          │││││└── _binary.cpython-310.pyc 
+          │││││└── _deprecate.cpython-310.pyc 
+          │││││└── _tkinter_finder.cpython-310.pyc 
+          │││││└── _typing.cpython-310.pyc 
+          │││││└── _util.cpython-310.pyc 
+          │││││└── _version.cpython-310.pyc 
+          │││││└── AvifImagePlugin.cpython-310.pyc 
+          │││││└── BdfFontFile.cpython-310.pyc 
+          │││││└── BlpImagePlugin.cpython-310.pyc 
+          │││││└── BmpImagePlugin.cpython-310.pyc 
+          │││││└── BufrStubImagePlugin.cpython-310.pyc 
+          │││││└── ContainerIO.cpython-310.pyc 
+          │││││└── CurImagePlugin.cpython-310.pyc 
+          │││││└── DcxImagePlugin.cpython-310.pyc 
+          │││││└── DdsImagePlugin.cpython-310.pyc 
+          │││││└── EpsImagePlugin.cpython-310.pyc 
+          │││││└── ExifTags.cpython-310.pyc 
+          │││││└── features.cpython-310.pyc 
+          │││││└── FitsImagePlugin.cpython-310.pyc 
+          │││││└── FliImagePlugin.cpython-310.pyc 
+          │││││└── FontFile.cpython-310.pyc 
+          │││││└── FpxImagePlugin.cpython-310.pyc 
+          │││││└── FtexImagePlugin.cpython-310.pyc 
+          │││││└── GbrImagePlugin.cpython-310.pyc 
+          │││││└── GdImageFile.cpython-310.pyc 
+          │││││└── GifImagePlugin.cpython-310.pyc 
+          │││││└── GimpGradientFile.cpython-310.pyc 
+          │││││└── GimpPaletteFile.cpython-310.pyc 
+          │││││└── GribStubImagePlugin.cpython-310.pyc 
+          │││││└── Hdf5StubImagePlugin.cpython-310.pyc 
+          │││││└── IcnsImagePlugin.cpython-310.pyc 
+          │││││└── IcoImagePlugin.cpython-310.pyc 
+          │││││└── Image.cpython-310.pyc 
+          │││││└── ImageChops.cpython-310.pyc 
+          │││││└── ImageCms.cpython-310.pyc 
+          │││││└── ImageColor.cpython-310.pyc 
+          │││││└── ImageDraw.cpython-310.pyc 
+          │││││└── ImageDraw2.cpython-310.pyc 
+          │││││└── ImageEnhance.cpython-310.pyc 
+          │││││└── ImageFile.cpython-310.pyc 
+          │││││└── ImageFilter.cpython-310.pyc 
+          │││││└── ImageFont.cpython-310.pyc 
+          │││││└── ImageGrab.cpython-310.pyc 
+          │││││└── ImageMath.cpython-310.pyc 
+          │││││└── ImageMode.cpython-310.pyc 
+          │││││└── ImageMorph.cpython-310.pyc 
+          │││││└── ImageOps.cpython-310.pyc 
+          │││││└── ImagePalette.cpython-310.pyc 
+          │││││└── ImagePath.cpython-310.pyc 
+          │││││└── ImageQt.cpython-310.pyc 
+          │││││└── ImageSequence.cpython-310.pyc 
+          │││││└── ImageShow.cpython-310.pyc 
+          │││││└── ImageStat.cpython-310.pyc 
+          │││││└── ImageText.cpython-310.pyc 
+          │││││└── ImageTk.cpython-310.pyc 
+          │││││└── ImageTransform.cpython-310.pyc 
+          │││││└── ImageWin.cpython-310.pyc 
+          │││││└── ImImagePlugin.cpython-310.pyc 
+          │││││└── ImtImagePlugin.cpython-310.pyc 
+          │││││└── IptcImagePlugin.cpython-310.pyc 
+          │││││└── Jpeg2KImagePlugin.cpython-310.pyc 
+          │││││└── JpegImagePlugin.cpython-310.pyc 
+          │││││└── JpegPresets.cpython-310.pyc 
+          │││││└── McIdasImagePlugin.cpython-310.pyc 
+          │││││└── MicImagePlugin.cpython-310.pyc 
+          │││││└── MpegImagePlugin.cpython-310.pyc 
+          │││││└── MpoImagePlugin.cpython-310.pyc 
+          │││││└── MspImagePlugin.cpython-310.pyc 
+          │││││└── PaletteFile.cpython-310.pyc 
+          │││││└── PalmImagePlugin.cpython-310.pyc 
+          │││││└── PcdImagePlugin.cpython-310.pyc 
+          │││││└── PcfFontFile.cpython-310.pyc 
+          │││││└── PcxImagePlugin.cpython-310.pyc 
+          │││││└── PdfImagePlugin.cpython-310.pyc 
+          │││││└── PdfParser.cpython-310.pyc 
+          │││││└── PixarImagePlugin.cpython-310.pyc 
+          │││││└── PngImagePlugin.cpython-310.pyc 
+          │││││└── PpmImagePlugin.cpython-310.pyc 
+          │││││└── PsdImagePlugin.cpython-310.pyc 
+          │││││└── PSDraw.cpython-310.pyc 
+          │││││└── QoiImagePlugin.cpython-310.pyc 
+          │││││└── report.cpython-310.pyc 
+          │││││└── SgiImagePlugin.cpython-310.pyc 
+          │││││└── SpiderImagePlugin.cpython-310.pyc 
+          │││││└── SunImagePlugin.cpython-310.pyc 
+          │││││└── TarIO.cpython-310.pyc 
+          │││││└── TgaImagePlugin.cpython-310.pyc 
+          │││││└── TiffImagePlugin.cpython-310.pyc 
+          │││││└── TiffTags.cpython-310.pyc 
+          │││││└── WalImageFile.cpython-310.pyc 
+          │││││└── WebPImagePlugin.cpython-310.pyc 
+          │││││└── WmfImagePlugin.cpython-310.pyc 
+          │││││└── XbmImagePlugin.cpython-310.pyc 
+          │││││└── XpmImagePlugin.cpython-310.pyc 
+          │││││└── XVThumbImagePlugin.cpython-310.pyc 
+        ││││└── __init__.py 
+        ││││└── __main__.py 
+        ││││└── _avif.cp310-win_amd64.pyd 
+        ││││└── _avif.pyi 
+        ││││└── _binary.py 
+        ││││└── _deprecate.py 
+        ││││└── _imaging.cp310-win_amd64.pyd 
+        ││││└── _imaging.pyi 
+        ││││└── _imagingcms.cp310-win_amd64.pyd 
+        ││││└── _imagingcms.pyi 
+        ││││└── _imagingft.cp310-win_amd64.pyd 
+        ││││└── _imagingft.pyi 
+        ││││└── _imagingmath.cp310-win_amd64.pyd 
+        ││││└── _imagingmath.pyi 
+        ││││└── _imagingmorph.cp310-win_amd64.pyd 
+        ││││└── _imagingmorph.pyi 
+        ││││└── _imagingtk.cp310-win_amd64.pyd 
+        ││││└── _imagingtk.pyi 
+        ││││└── _tkinter_finder.py 
+        ││││└── _typing.py 
+        ││││└── _util.py 
+        ││││└── _version.py 
+        ││││└── _webp.cp310-win_amd64.pyd 
+        ││││└── _webp.pyi 
+        ││││└── AvifImagePlugin.py 
+        ││││└── BdfFontFile.py 
+        ││││└── BlpImagePlugin.py 
+        ││││└── BmpImagePlugin.py 
+        ││││└── BufrStubImagePlugin.py 
+        ││││└── ContainerIO.py 
+        ││││└── CurImagePlugin.py 
+        ││││└── DcxImagePlugin.py 
+        ││││└── DdsImagePlugin.py 
+        ││││└── EpsImagePlugin.py 
+        ││││└── ExifTags.py 
+        ││││└── features.py 
+        ││││└── FitsImagePlugin.py 
+        ││││└── FliImagePlugin.py 
+        ││││└── FontFile.py 
+        ││││└── FpxImagePlugin.py 
+        ││││└── FtexImagePlugin.py 
+        ││││└── GbrImagePlugin.py 
+        ││││└── GdImageFile.py 
+        ││││└── GifImagePlugin.py 
+        ││││└── GimpGradientFile.py 
+        ││││└── GimpPaletteFile.py 
+        ││││└── GribStubImagePlugin.py 
+        ││││└── Hdf5StubImagePlugin.py 
+        ││││└── IcnsImagePlugin.py 
+        ││││└── IcoImagePlugin.py 
+        ││││└── Image.py 
+        ││││└── ImageChops.py 
+        ││││└── ImageCms.py 
+        ││││└── ImageColor.py 
+        ││││└── ImageDraw.py 
+        ││││└── ImageDraw2.py 
+        ││││└── ImageEnhance.py 
+        ││││└── ImageFile.py 
+        ││││└── ImageFilter.py 
+        ││││└── ImageFont.py 
+        ││││└── ImageGrab.py 
+        ││││└── ImageMath.py 
+        ││││└── ImageMode.py 
+        ││││└── ImageMorph.py 
+        ││││└── ImageOps.py 
+        ││││└── ImagePalette.py 
+        ││││└── ImagePath.py 
+        ││││└── ImageQt.py 
+        ││││└── ImageSequence.py 
+        ││││└── ImageShow.py 
+        ││││└── ImageStat.py 
+        ││││└── ImageText.py 
+        ││││└── ImageTk.py 
+        ││││└── ImageTransform.py 
+        ││││└── ImageWin.py 
+        ││││└── ImImagePlugin.py 
+        ││││└── ImtImagePlugin.py 
+        ││││└── IptcImagePlugin.py 
+        ││││└── Jpeg2KImagePlugin.py 
+        ││││└── JpegImagePlugin.py 
+        ││││└── JpegPresets.py 
+        ││││└── McIdasImagePlugin.py 
+        ││││└── MicImagePlugin.py 
+        ││││└── MpegImagePlugin.py 
+        ││││└── MpoImagePlugin.py 
+        ││││└── MspImagePlugin.py 
+        ││││└── PaletteFile.py 
+        ││││└── PalmImagePlugin.py 
+        ││││└── PcdImagePlugin.py 
+        ││││└── PcfFontFile.py 
+        ││││└── PcxImagePlugin.py 
+        ││││└── PdfImagePlugin.py 
+        ││││└── PdfParser.py 
+        ││││└── PixarImagePlugin.py 
+        ││││└── PngImagePlugin.py 
+        ││││└── PpmImagePlugin.py 
+        ││││└── PsdImagePlugin.py 
+        ││││└── PSDraw.py 
+        ││││└── py.typed 
+        ││││└── QoiImagePlugin.py 
+        ││││└── report.py 
+        ││││└── SgiImagePlugin.py 
+        ││││└── SpiderImagePlugin.py 
+        ││││└── SunImagePlugin.py 
+        ││││└── TarIO.py 
+        ││││└── TgaImagePlugin.py 
+        ││││└── TiffImagePlugin.py 
+        ││││└── TiffTags.py 
+        ││││└── WalImageFile.py 
+        ││││└── WebPImagePlugin.py 
+        ││││└── WmfImagePlugin.py 
+        ││││└── XbmImagePlugin.py 
+        ││││└── XpmImagePlugin.py 
+        ││││└── XVThumbImagePlugin.py 
+      │││├── pillow-12.2.0.dist-info/ 
+        ││││├── licenses/ 
+          │││││└── LICENSE 
+        ││││└── INSTALLER 
+        ││││└── METADATA 
+        ││││└── RECORD 
+        ││││└── REQUESTED 
+        ││││└── top_level.txt 
+        ││││└── WHEEL 
+        ││││└── zip-safe 
       │││├── pip/ 
         ││││├── __pycache__/ 
           │││││└── __init__.cpython-310.pyc 
@@ -8068,6 +8347,15 @@ D:\DaiHoc\Source\ONUS_Fitness_System
         ││││└── __init__.py 
         ││││└── api_tests.txt 
         ││││└── py.typed 
+      │││├── pyjwt-2.12.1.dist-info/ 
+        ││││├── licenses/ 
+          │││││└── AUTHORS.rst 
+          │││││└── LICENSE 
+        ││││└── INSTALLER 
+        ││││└── METADATA 
+        ││││└── RECORD 
+        ││││└── top_level.txt 
+        ││││└── WHEEL 
       │││├── rest_framework/ 
         ││││├── __pycache__/ 
           │││││└── __init__.cpython-310.pyc 
@@ -8506,6 +8794,172 @@ D:\DaiHoc\Source\ONUS_Fitness_System
         ││││└── versioning.py 
         ││││└── views.py 
         ││││└── viewsets.py 
+      │││├── rest_framework_simplejwt/ 
+        ││││├── __pycache__/ 
+          │││││└── __init__.cpython-310.pyc 
+          │││││└── authentication.cpython-310.pyc 
+          │││││└── backends.cpython-310.pyc 
+          │││││└── exceptions.cpython-310.pyc 
+          │││││└── models.cpython-310.pyc 
+          │││││└── serializers.cpython-310.pyc 
+          │││││└── settings.cpython-310.pyc 
+          │││││└── state.cpython-310.pyc 
+          │││││└── tokens.cpython-310.pyc 
+          │││││└── utils.cpython-310.pyc 
+          │││││└── views.cpython-310.pyc 
+        ││││├── locale/ 
+          │││││├── ar/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── cs/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── de/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── es/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── es_AR/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── es_CL/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── fa/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── fa_IR/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── fr/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── he_IL/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── id_ID/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── it_IT/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── ko_KR/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── nl_NL/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── pl_PL/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── pt_BR/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── ro/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── ru_RU/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── sl/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── sv/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── tr/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── uk_UA/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+          │││││├── zh_Hans/ 
+            ││││││├── LC_MESSAGES/ 
+              │││││││└── django.mo 
+              │││││││└── django.po 
+        ││││├── token_blacklist/ 
+          │││││├── __pycache__/ 
+            ││││││└── __init__.cpython-310.pyc 
+            ││││││└── admin.cpython-310.pyc 
+            ││││││└── apps.cpython-310.pyc 
+            ││││││└── models.cpython-310.pyc 
+          │││││├── management/ 
+            ││││││├── __pycache__/ 
+              │││││││└── __init__.cpython-310.pyc 
+            ││││││├── commands/ 
+              │││││││├── __pycache__/ 
+                ││││││││└── __init__.cpython-310.pyc 
+                ││││││││└── flushexpiredtokens.cpython-310.pyc 
+              │││││││└── __init__.py 
+              │││││││└── flushexpiredtokens.py 
+            ││││││└── __init__.py 
+          │││││├── migrations/ 
+            ││││││├── __pycache__/ 
+              │││││││└── __init__.cpython-310.pyc 
+              │││││││└── 0001_initial.cpython-310.pyc 
+              │││││││└── 0002_outstandingtoken_jti_hex.cpython-310.pyc 
+              │││││││└── 0003_auto_20171017_2007.cpython-310.pyc 
+              │││││││└── 0004_auto_20171017_2013.cpython-310.pyc 
+              │││││││└── 0005_remove_outstandingtoken_jti.cpython-310.pyc 
+              │││││││└── 0006_auto_20171017_2113.cpython-310.pyc 
+              │││││││└── 0007_auto_20171017_2214.cpython-310.pyc 
+              │││││││└── 0008_migrate_to_bigautofield.cpython-310.pyc 
+              │││││││└── 0010_fix_migrate_to_bigautofield.cpython-310.pyc 
+              │││││││└── 0011_linearizes_history.cpython-310.pyc 
+              │││││││└── 0012_alter_outstandingtoken_user.cpython-310.pyc 
+              │││││││└── 0013_alter_blacklistedtoken_options_and_more.cpython-310.pyc 
+            ││││││└── __init__.py 
+            ││││││└── 0001_initial.py 
+            ││││││└── 0002_outstandingtoken_jti_hex.py 
+            ││││││└── 0003_auto_20171017_2007.py 
+            ││││││└── 0004_auto_20171017_2013.py 
+            ││││││└── 0005_remove_outstandingtoken_jti.py 
+            ││││││└── 0006_auto_20171017_2113.py 
+            ││││││└── 0007_auto_20171017_2214.py 
+            ││││││└── 0008_migrate_to_bigautofield.py 
+            ││││││└── 0010_fix_migrate_to_bigautofield.py 
+            ││││││└── 0011_linearizes_history.py 
+            ││││││└── 0012_alter_outstandingtoken_user.py 
+            ││││││└── 0013_alter_blacklistedtoken_options_and_more.py 
+          │││││└── __init__.py 
+          │││││└── admin.py 
+          │││││└── apps.py 
+          │││││└── models.py 
+        ││││└── __init__.py 
+        ││││└── authentication.py 
+        ││││└── backends.py 
+        ││││└── exceptions.py 
+        ││││└── models.py 
+        ││││└── py.typed 
+        ││││└── serializers.py 
+        ││││└── settings.py 
+        ││││└── state.py 
+        ││││└── tokens.py 
+        ││││└── utils.py 
+        ││││└── views.py 
       │││├── setuptools/ 
         ││││├── _distutils/ 
           │││││├── command/ 
@@ -9856,12 +10310,34 @@ D:\DaiHoc\Source\ONUS_Fitness_System
   │└── pyvenv.cfg 
 ├── backend/ 
   │├── accounts/ 
-    ││├── migrations/ 
+    ││├── __pycache__/ 
+      │││└── __init__.cpython-310.pyc 
+      │││└── admin.cpython-310.pyc 
+      │││└── apps.cpython-310.pyc 
+      │││└── models.cpython-310.pyc 
+      │││└── serializers.cpython-310.pyc 
+      │││└── views.cpython-310.pyc 
+    ││├── management/ 
+      │││├── __pycache__/ 
+        ││││└── __init__.cpython-310.pyc 
+      │││├── commands/ 
+        ││││├── __pycache__/ 
+          │││││└── __init__.cpython-310.pyc 
+          │││││└── seed_data.cpython-310.pyc 
+        ││││└── __init__.py 
+        ││││└── seed_data.py 
       │││└── __init__.py 
+    ││├── migrations/ 
+      │││├── __pycache__/ 
+        ││││└── __init__.cpython-310.pyc 
+        ││││└── 0001_initial.cpython-310.pyc 
+      │││└── __init__.py 
+      │││└── 0001_initial.py 
     ││└── __init__.py 
     ││└── admin.py 
     ││└── apps.py 
     ││└── models.py 
+    ││└── serializers.py 
     ││└── tests.py 
     ││└── views.py 
   │├── backend/ 
@@ -9876,23 +10352,45 @@ D:\DaiHoc\Source\ONUS_Fitness_System
     ││└── urls.py 
     ││└── wsgi.py 
   │├── fitness/ 
+    ││├── __pycache__/ 
+      │││└── __init__.cpython-310.pyc 
+      │││└── admin.cpython-310.pyc 
+      │││└── apps.cpython-310.pyc 
+      │││└── models.cpython-310.pyc 
     ││├── migrations/ 
+      │││├── __pycache__/ 
+        ││││└── __init__.cpython-310.pyc 
+        ││││└── 0001_initial.cpython-310.pyc 
       │││└── __init__.py 
+      │││└── 0001_initial.py 
     ││└── __init__.py 
     ││└── admin.py 
     ││└── apps.py 
     ││└── models.py 
     ││└── tests.py 
     ││└── views.py 
+  │├── media/ 
   │├── social/ 
+    ││├── __pycache__/ 
+      │││└── __init__.cpython-310.pyc 
+      │││└── admin.cpython-310.pyc 
+      │││└── apps.cpython-310.pyc 
+      │││└── models.cpython-310.pyc 
     ││├── migrations/ 
+      │││├── __pycache__/ 
+        ││││└── __init__.cpython-310.pyc 
+        ││││└── 0001_initial.cpython-310.pyc 
+        ││││└── 0002_remove_baidang_tieude_alter_baidang_anhurl.cpython-310.pyc 
       │││└── __init__.py 
+      │││└── 0001_initial.py 
+      │││└── 0002_remove_baidang_tieude_alter_baidang_anhurl.py 
     ││└── __init__.py 
     ││└── admin.py 
     ││└── apps.py 
     ││└── models.py 
     ││└── tests.py 
     ││└── views.py 
+  │└── .env 
   │└── db.sqlite3 
   │└── manage.py 
 ├── frontend/ 
@@ -9900,6 +10398,9 @@ D:\DaiHoc\Source\ONUS_Fitness_System
     ││└── favicon.svg 
     ││└── icons.svg 
   │├── src/ 
+    ││├── api/ 
+      │││└── authApi.js 
+      │││└── axiosClient.js 
     ││├── assets/ 
     ││├── components/ 
       │││├── layout/ 
@@ -9990,6 +10491,7 @@ D:\DaiHoc\Source\ONUS_Fitness_System
     ││└── App.jsx 
     ││└── index.css 
     ││└── main.jsx 
+  │└── .env 
   │└── components.json 
   │└── eslint.config.js 
   │└── index.html 

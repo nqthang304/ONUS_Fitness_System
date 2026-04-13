@@ -2,9 +2,9 @@
   "compilerOptions": {
     "target": "ES6",
     "lib": ["ES6", "DOM", "DOM.Iterable"],
-    "baseUrl": ".",
+    // "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"]

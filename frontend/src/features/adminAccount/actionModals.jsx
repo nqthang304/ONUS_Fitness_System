@@ -22,3 +22,25 @@ export const ConfirmActionModal = ({ isOpen, onClose, onConfirm, title, confirmT
     </AlertDialog>
   );
 };
+
+export const ActionResultModal = ({ isOpen, onClose, title, isSuccess = true }) => {
+  return (
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
+      <AlertDialogContent className="max-w-[420px] rounded-2xl font-figtree p-5 gap-4">
+        <AlertDialogHeader className="items-center text-center sm:group-data-[size=default]/alert-dialog-content:place-items-center sm:group-data-[size=default]/alert-dialog-content:text-center">
+          <AlertDialogTitle className={`text-center text-lg font-medium leading-snug ${isSuccess ? 'text-emerald-700' : 'text-red-700'}`}>
+            {title}
+          </AlertDialogTitle>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="flex flex-row w-full items-center gap-3 mt-4 sm:space-x-0">
+          <AlertDialogAction
+            onClick={onClose}
+            className={`flex-1 h-10 rounded-xl !text-white font-medium text-center ${isSuccess ? '!bg-emerald-600 hover:!bg-emerald-700' : '!bg-red-600 hover:!bg-red-700'}`}
+          >
+            Đã hiểu
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};

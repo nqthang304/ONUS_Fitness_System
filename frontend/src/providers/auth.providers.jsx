@@ -1,10 +1,5 @@
 import { createContext, useContext, useState } from "react";
-// Mock dữ liệu người dùng (thay thế cho API thực tế)
-const MOCK_USERS = [
-  { id: 1, soDienThoai: "0999999999", password: "123", tenHienThi: "Quản trị hệ thống", role: "ADMIN" },
-  { id: 2, soDienThoai: "0988888888", password: "123", tenHienThi: "HLV B", role: "HLV" },
-  { id: 3, soDienThoai: "0901234567", password: "123", tenHienThi: "Hội viên C", role: "HOIVIEN",hlv_id: 2 },
-];
+import authApi from "@/api/authApi";
 
 const AuthContext = createContext(null);
 
@@ -17,28 +12,78 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const login = async (soDienThoai, password) => {
+    const username = String(soDienThoai || "").trim();
+    const rawPassword = String(password || "");
+
+    if (!username || !rawPassword.trim()) {
+      return "Vui lòng nhập đầy đủ số điện thoại và mật khẩu.";
+    }
+
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    // Gọi API đăng nhập
+    try {
+      const response = await authApi.login(username, rawPassword);
+      const data = response.data;
 
-    // Tìm người dùng dựa trên Số điện thoại
-    const foundUser = MOCK_USERS.find(
-      (u) => u.soDienThoai === soDienThoai && u.password === password
-    );
+      // Lưu token vào localStorage
+      localStorage.setItem("access_token", data.access);
+      localStorage.setItem("refresh_token", data.refresh);
 
-    if (foundUser) {
-      const { password, ...userToSave } = foundUser;
-      localStorage.setItem("onus_user", JSON.stringify(userToSave));
-      setUser(userToSave);
+      // Lưu thông tin người dùng (trừ mật khẩu) vào localStorage
+      localStorage.setItem("onus_user", JSON.stringify(data.user));
+
+      // Cập nhật state người dùng
+      setUser(data.user);
       setIsLoading(false);
       window.location.href = "/";
-    } else {
+      
+      return null;
+    } catch (error) {
       setIsLoading(false);
-      return "Số điện thoại hoặc mật khẩu không chính xác!";
+      console.error("Chi tiết lỗi Đăng nhập:", error);
+
+      const statusCode = error?.response?.status;
+      const errorData = error?.response?.data || {};
+      const detail = errorData?.detail;
+      const usernameErrors = errorData?.username;
+      const passwordErrors = errorData?.password;
+      const nonFieldErrors = errorData?.non_field_errors;
+
+      // Sai thông tin đăng nhập
+      if (statusCode === 401) {
+        return "Số điện thoại hoặc mật khẩu không chính xác!";
+      }
+
+      // Thiếu input hoặc payload không hợp lệ
+      if (statusCode === 400) {
+        if (Array.isArray(usernameErrors) && usernameErrors.length > 0) {
+          return usernameErrors[0];
+        }
+        if (Array.isArray(passwordErrors) && passwordErrors.length > 0) {
+          return passwordErrors[0];
+        }
+        if (Array.isArray(nonFieldErrors) && nonFieldErrors.length > 0) {
+          return nonFieldErrors[0];
+        }
+        if (typeof detail === "string" && detail.trim()) {
+          return detail;
+        }
+        return "Vui lòng nhập đúng thông tin đăng nhập.";
+      }
+
+      if (!error?.response) {
+        return "Mất kết nối tới máy chủ. Vui lòng kiểm tra mạng và thử lại.";
+      }
+
+      return "Máy chủ đang bảo trì hoặc mất kết nối. Vui lòng thử lại!";
     }
   };
 
   const logout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("onus_user");
+    
     setUser(null);
     window.location.href = "/login";
   };
