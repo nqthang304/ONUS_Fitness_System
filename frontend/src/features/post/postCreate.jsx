@@ -8,11 +8,12 @@ import { SendHorizontal, X } from "lucide-react";
 
 const PostCreate = ({ onPostCreated }) => {
   const { user, role } = useAuth();
+  const currentRole = String(role || "").toLowerCase();
   const [content, setContent] = useState("");
   const [isExpanding, setIsExpanding] = useState(false);
 
   // Chỉ Admin và HLV mới được thấy component này
-  if (role !== "ADMIN" && role !== "HLV") return null;
+  if (currentRole !== "admin" && currentRole !== "hlv") return null;
 
   const handlePost = () => {
     if (!content.trim()) return;
@@ -23,8 +24,8 @@ const PostCreate = ({ onPostCreated }) => {
       author_name: user.tenHienThi,
       author_avatar: "",
       author_id: user?.id,
-      role: role,
-      hlv_id: role === "HLV" ? user?.id : undefined,
+      role: currentRole,
+      hlv_id: currentRole === "hlv" ? user?.id : undefined,
       content: content,
       created_at: "Vừa xong",
       likes: 0,

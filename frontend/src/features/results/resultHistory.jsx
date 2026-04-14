@@ -1,7 +1,9 @@
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import { StatRow } from "./ResultLatest";
 
-export const ResultHistory = ({ historyResults }) => {
+export const ResultHistory = ({ historyResults, onDeleteClick }) => {
   if (!historyResults || historyResults.length === 0) return null;
 
   const formatDate = (dateStr) => {
@@ -15,7 +17,20 @@ export const ResultHistory = ({ historyResults }) => {
       
       {historyResults.map((record) => (
         <div key={record.Id} className="space-y-3">
-          <p className="text-sm font-medium text-slate-500">{formatDate(record.NgayTao)}</p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-slate-500">{formatDate(record.NgayTao)}</p>
+            {onDeleteClick && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-red-500 hover:text-red-600"
+                onClick={() => onDeleteClick(record)}
+                aria-label="Xóa bản ghi chỉ số"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="p-6 rounded-2xl border-slate-100 shadow-sm opacity-80">

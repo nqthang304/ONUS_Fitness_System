@@ -39,12 +39,12 @@ const TrackingHubPage = () => {
   const { role } = useAuth();
 
   useEffect(() => {
-    if (role && role !== "HOIVIEN") {
+    if (role && role !== "hoivien") {
       navigate("/", { replace: true });
     }
   }, [role, navigate]);
 
-  if (role && role !== "HOIVIEN") {
+  if (role && role !== "hoivien") {
     return null;
   }
 

@@ -5,7 +5,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 export const MealModals = ({
     isAddOpen, setIsAddOpen, newDish, setNewDish, handleAddDish,
-    deleteData, setDeleteData, confirmDelete
+    addError, deleteData, setDeleteData, confirmDelete
 }) => {
     return (
         <>
@@ -28,6 +28,11 @@ export const MealModals = ({
                             </div>
                         ))}
                     </div>
+                    {addError ? (
+                        <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+                            {addError}
+                        </div>
+                    ) : null}
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setIsAddOpen(false)}>Hủy</Button>
                         <Button onClick={handleAddDish} className="bg-blue-600 hover:bg-blue-700">Lưu kết quả</Button>

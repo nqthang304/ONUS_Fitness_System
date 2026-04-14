@@ -60,30 +60,15 @@ export const router = createBrowserRouter([
       },
       {
         path: "bai-tap",
-        children: [
-          {
-            index: true,
-            element: <WorkoutSchedulePage />
-          }, 
-          {
-            path: ":memberId",
-            element: <WorkoutSchedulePage />
-          }
-        ]
+        element: <WorkoutSchedulePage />
       },
       {
         path: "lich-an",
-        children: [
-          { index: true, element: <MealSchedulePage /> }, // Xem của bản thân (HoiVien)
-          { path: ":memberId", element: <MealSchedulePage /> }, // Xem của từng hội viên (HLV)
-        ]
+        element: <MealSchedulePage />
       },
       {
         path: 'ket-qua',
-        children: [
-          { index: true, element: <ResultPage /> }, // Hub chọn (HLV) hoặc Xem của mình (Hội viên)
-          { path: ":memberId", element: <ResultPage /> } // Xem chi tiết theo ID (HLV)
-        ]
+        element: <ResultPage />
       },
       {
         path: "tai-khoan",
@@ -94,7 +79,7 @@ export const router = createBrowserRouter([
         element: <ProfilePage />
       },
       {
-        path: "ho-so-hoi-vien/:memberId",
+        path: "ho-so-hoi-vien",
         element: <ProfilePage />
       },
     ]

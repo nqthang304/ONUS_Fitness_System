@@ -4,7 +4,8 @@ import PostCreate from "@/features/post/postCreate";
 import PostList from "@/features/post/PostList";
 
 const Feed = () => {
-  const { user, role } = useAuth();
+  const { user, role, currentUserId } = useAuth();
+  const currentRole = String(role || "").toLowerCase();
   console.log("Current User Data:", user);
   // Dữ liệu Mock ban đầu
   const [posts, setPosts] = useState([
@@ -34,15 +35,17 @@ const Feed = () => {
 
   // LOGIC NGHIỆP VỤ: Lọc bài đăng hiển thị
   const displayPosts = posts.filter(post => {
-    if (role === "ADMIN") return true; // Admin thấy hết
-    if (post.role === "ADMIN") return true; // Ai cũng thấy bài Admin
+    const postRole = String(post.role || "").toLowerCase();
 
-    if (role === "HLV") {
-      return String(post.hlv_id) === String(user.id) || String(post.author_id) === String(user.id); // HLV thấy bài của mình
+    if (currentRole === "admin") return true; // Admin thấy hết
+    if (postRole === "admin") return true; // Ai cũng thấy bài Admin
+
+    if (currentRole === "hlv") {
+      return String(post.hlv_id) === String(currentUserId) || String(post.author_id) === String(currentUserId); // HLV thấy bài của mình
     }
 
-    if (role === "HOIVIEN") {
-      return String(post.hlv_id) === String(user.hlv_id);
+    if (currentRole === "hoivien") {
+      return String(post.hlv_id) === String(user?.hlv_id || "");
     }
     return false;
   });

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/providers/auth.providers";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ const normalizeProfile = (data) => {
   if (!data) return null;
 
   return {
-    id: String(data.Id_HoiVien || data.Id_HLV || data.account_info?.username || data.username || ""),
+    id: String(data.account_info?.id || data.id || data.Id_HoiVien || data.Id_HLV || data.account_info?.username || data.username || ""),
     name: data.HoTen || "",
     phone: data.account_info?.username || data.username || "",
     dob: data.NgaySinh || "",
@@ -26,7 +26,7 @@ const normalizeProfile = (data) => {
 const ProfilePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { memberId } = useParams();
+  const location = useLocation();
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,11 +38,18 @@ const ProfilePage = () => {
   const currentUsername = String(user?.username || "");
   const currentRole = String(user?.role || "").toLowerCase();
   const canViewOtherProfiles = currentRole === "hlv" || currentRole === "admin";
+  const isMemberProfileRoute = location.pathname === "/ho-so-hoi-vien";
+
+  const targetMemberId = String(location.state?.memberId || "");
+  const targetMemberUsername = String(location.state?.memberUsername || "");
+  const isViewingOtherProfile = Boolean(targetMemberId || targetMemberUsername);
 
   const isOwnerProfile =
-    !memberId ||
-    String(memberId) === currentUserId ||
-    String(memberId) === currentUsername;
+    !isViewingOtherProfile ||
+    targetMemberId === currentUserId ||
+    targetMemberUsername === currentUsername;
+  const canEditProfileInfo = isOwnerProfile && currentRole !== "admin";
+  const canChangePassword = isOwnerProfile;
 
   useEffect(() => {
     let isCancelled = false;
@@ -56,19 +63,29 @@ const ProfilePage = () => {
           currentUserId,
           currentUsername,
           currentRole,
-          memberId,
+          isMemberProfileRoute,
+          targetMemberId,
+          targetMemberUsername,
+          isViewingOtherProfile,
           isOwnerProfile,
           canViewOtherProfiles,
           tokenPresent: Boolean(localStorage.getItem("access_token")),
         });
 
-        if (memberId && !isOwnerProfile && !canViewOtherProfiles) {
+        if (isMemberProfileRoute && !isViewingOtherProfile) {
           navigate("/ho-so", { replace: true });
           return;
         }
 
-        const params = memberId && !isOwnerProfile
-          ? (/^\d+$/.test(String(memberId)) ? { id: memberId } : { username: memberId })
+        if (isViewingOtherProfile && !isOwnerProfile && !canViewOtherProfiles) {
+          navigate("/ho-so", { replace: true });
+          return;
+        }
+
+        const params = isViewingOtherProfile && !isOwnerProfile
+          ? (targetMemberId
+            ? (/^\d+$/.test(targetMemberId) ? { id: targetMemberId } : { username: targetMemberId })
+            : { username: targetMemberUsername })
           : {};
 
         console.debug("[Profile] request params", params);
@@ -87,7 +104,7 @@ const ProfilePage = () => {
         if (!isCancelled) {
           if (error.response?.status === 403) {
             setErrorMessage(error?.response?.data?.detail || "Bạn không có quyền xem hồ sơ này.");
-            if (memberId && !isOwnerProfile) {
+            if (isViewingOtherProfile && !isOwnerProfile) {
               navigate("/ho-so", { replace: true });
             }
           } else if (error.response?.status === 404) {
@@ -110,7 +127,16 @@ const ProfilePage = () => {
     return () => {
       isCancelled = true;
     };
-  }, [canViewOtherProfiles, isOwnerProfile, memberId, navigate, user]);
+  }, [
+    canViewOtherProfiles,
+    isOwnerProfile,
+    isMemberProfileRoute,
+    isViewingOtherProfile,
+    targetMemberId,
+    targetMemberUsername,
+    navigate,
+    user,
+  ]);
 
   useEffect(() => {
     if (!isOwnerProfile && isEditing) {
@@ -163,10 +189,10 @@ const ProfilePage = () => {
         onSave={handleSaveProfile}
         isEditing={isEditing}
         setIsEditing={setIsEditing}
-        canEdit={isOwnerProfile}
+        canEdit={canEditProfileInfo}
       />
 
-      {isOwnerProfile && !isEditing && (
+      {canChangePassword && !isEditing && (
         <Card className="p-6 md:p-8 rounded-2xl border-slate-100 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h3 className="font-bold text-lg text-slate-900">Bảo mật</h3>

@@ -1,15 +1,62 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import authApi from "@/api/authApi";
 
 const AuthContext = createContext(null);
 
+const normalizeUserRole = (userData) => {
+  if (!userData) return null;
+  return {
+    ...userData,
+    role: String(userData.role || "").toLowerCase(),
+  };
+};
+
+const normalizeAuthenticatedUser = (baseUser, profileData) => {
+  if (!baseUser) return null;
+
+  const accountId = profileData?.account_info?.id ?? profileData?.id ?? baseUser.id ?? baseUser.username ?? "";
+
+  return {
+    ...baseUser,
+    ...profileData,
+    id: accountId,
+    account_info: profileData?.account_info || baseUser.account_info || null,
+    hlv_id: profileData?.hlv_id ?? baseUser.hlv_id ?? null,
+    role: String(profileData?.role || baseUser.role || "").toLowerCase(),
+  };
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("onus_user");
-    return savedUser ? JSON.parse(savedUser) : null;
+    return savedUser ? normalizeUserRole(JSON.parse(savedUser)) : null;
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const hydrateCurrentUser = async () => {
+      const token = localStorage.getItem("access_token");
+      if (!token || !user) return;
+
+      if (user.id) return;
+
+      try {
+        const response = await authApi.getProfile();
+        const profileData = response?.data || null;
+        const normalizedUser = normalizeAuthenticatedUser(user, profileData);
+
+        if (normalizedUser) {
+          setUser(normalizedUser);
+          localStorage.setItem("onus_user", JSON.stringify(normalizedUser));
+        }
+      } catch (error) {
+        console.error("Không thể đồng bộ hồ sơ người dùng hiện tại:", error);
+      }
+    };
+
+    hydrateCurrentUser();
+  }, [user]);
 
   const login = async (soDienThoai, password) => {
     const username = String(soDienThoai || "").trim();
@@ -30,10 +77,11 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("refresh_token", data.refresh);
 
       // Lưu thông tin người dùng (trừ mật khẩu) vào localStorage
-      localStorage.setItem("onus_user", JSON.stringify(data.user));
+      const normalizedUser = normalizeUserRole(data.user);
+      localStorage.setItem("onus_user", JSON.stringify(normalizedUser));
 
       // Cập nhật state người dùng
-      setUser(data.user);
+      setUser(normalizedUser);
       setIsLoading(false);
       window.location.href = "/";
       
@@ -91,7 +139,8 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     isLoggedIn: !!user,
-    role: user?.role,
+    role: String(user?.role || "").toLowerCase(),
+    currentUserId: String(user?.id || user?.account_info?.id || ""),
     isLoading,
     login,
     logout,

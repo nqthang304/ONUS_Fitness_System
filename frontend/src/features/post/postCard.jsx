@@ -32,6 +32,8 @@ import {
 
 const PostCard = ({ post, onCommentClick, onUpdatePost, onDeletePost }) => {
   const { user, role } = useAuth();
+  const currentRole = String(role || "").toLowerCase();
+  const postRole = String(post.role || "").toLowerCase();
   const [isLiked, setIsLiked] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -59,7 +61,7 @@ const PostCard = ({ post, onCommentClick, onUpdatePost, onDeletePost }) => {
   };
   const isOwner = user?.id === post.hlv_id || user?.id === post.id;
   const canEdit = isOwner;
-  const canDelete = role === "ADMIN" || isOwner;
+  const canDelete = currentRole === "admin" || isOwner;
   const showMenu = canEdit || canDelete;
 
   return (
@@ -75,7 +77,7 @@ const PostCard = ({ post, onCommentClick, onUpdatePost, onDeletePost }) => {
                 </AvatarFallback>
               </Avatar>
               {/* Icon tích xanh cho Admin */}
-              {post.role === "ADMIN" && (
+              {postRole === "admin" && (
                 <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5">
                   <CheckCircle2 className="w-4 h-4 text-blue-600 fill-white" />
                 </div>
@@ -85,7 +87,7 @@ const PostCard = ({ post, onCommentClick, onUpdatePost, onDeletePost }) => {
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <span className="font-bold text-slate-900">{post.author_name}</span>
-                {post.role === "ADMIN" && (
+                {postRole === "admin" && (
                   <Badge variant="secondary" className="bg-blue-50 text-blue-600 hover:bg-blue-100 border-none font-medium px-2 py-0">
                     Admin
                   </Badge>
