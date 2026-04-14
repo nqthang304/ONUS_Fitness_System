@@ -23,7 +23,9 @@ git clone <url-cua-repo>
 cd ONUS_Fitness_System
 ```
 
-**Bước 2:** Khởi tạo hệ thống (Chỉ cần chạy ở lần đầu tiên):
+**Bước 2:** Thêm file `.env` ở cả hai thư mục `backend/` và `frontend/` 
+
+**Bước 3:** Khởi tạo hệ thống (Chỉ cần chạy ở lần đầu tiên):
 Mở Terminal (PowerShell/CMD), đi tới thư mục `workspace` và chạy lệnh cài đặt:
 ```bash
 cd workspace
