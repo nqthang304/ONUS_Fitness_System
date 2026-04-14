@@ -1,37 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/providers/auth.providers";
 import PostCreate from "@/features/post/postCreate";
 import PostList from "@/features/post/PostList";
+import postApi from "@/api/postApi";
 
 const Feed = () => {
   const { user, role, currentUserId } = useAuth();
   const currentRole = String(role || "").toLowerCase();
-  console.log("Current User Data:", user);
-  // Dữ liệu Mock ban đầu
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      author_name: "Admin ONUS",
-      role: "ADMIN",
-      created_at: "19:38 03/02/2026",
-      content: "Thứ 7 này phòng tập sẽ đóng cửa để bảo trì. Mọi người lưu ý nhé!",
-      likes: 5,
-      comment_count: 2,
-      comments_data: [
-        { id: 1, user: "HLV Trần B", text: "Đã nhận thông tin ạ!" }
-      ]
-    },
-    {
-      id: 2,
-      author_name: "HLV Trần B",
-      role: "HLV",
-      hlv_id: 2, // Giả sử ID HLV là 2
-      created_at: "18:38 04/02/2026",
-      content: "Hôm nay phòng tập rất sôi động! Chúc mọi người một ngày làm việc hiệu quả.",
-      likes: 12,
-      comment_count: 0
-    }
-  ]);
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const response = await postApi.getPosts();
+        setPosts(response?.data || []);
+      } catch (error) {
+        console.error("Không thể tải danh sách bài đăng:", error);
+        setPosts([]);
+      }
+    };
+
+    loadPosts();
+  }, []);
 
   // LOGIC NGHIỆP VỤ: Lọc bài đăng hiển thị
   const displayPosts = posts.filter(post => {
@@ -51,12 +41,25 @@ const Feed = () => {
   });
 
   const addNewPost = (newPost) => {
-    setPosts([newPost, ...posts]); // Đưa bài mới lên đầu
+    setPosts((prev) => [newPost, ...prev]); // Đưa bài mới lên đầu
   };
 
   const handleUpdatePost = (postId, newContent) => {
-    setPosts(prev =>
-      prev.map(p => p.id === postId ? { ...p, content: newContent } : p)
+    setPosts((prev) =>
+      prev.map((post) => {
+        if (post.id !== postId) return post;
+
+        if (typeof newContent === "string") {
+          return { ...post, content: newContent };
+        }
+
+        return {
+          ...post,
+          ...newContent,
+          content: newContent?.content ?? post.content,
+          image_url: newContent?.image_url !== undefined ? newContent.image_url : post.image_url,
+        };
+      })
     );
   };
 
