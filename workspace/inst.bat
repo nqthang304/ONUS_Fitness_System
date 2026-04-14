@@ -1,73 +1,81 @@
 @echo off
-setlocal
-title Restore Media ^& Seed Data - ONUS Fitness System
+setlocal enabledelayedexpansion
+title Setup ONUS Fitness System - Bulletproof Venv
+
+:: Xac dinh thu muc goc (Root)
+set "ROOT_DIR=%~dp0.."
+cd /d "%ROOT_DIR%"
 
 echo ======================================================
-echo   KHOI PHOI CAU TRUC MEDIA ^& SEED DATA
+echo   HE THONG ONUS FITNESS - SETUP (ABSOLUTE PATH)
 echo ======================================================
 
-:: 1. Xu ly Backend
+:: --------------------------------------------------------
+:: 1. THIET LAP BACKEND
+:: --------------------------------------------------------
 echo.
-echo [1/2] Dang thiet lap du lieu cho Backend...
-cd backend
+echo [1/2] Dang thiet lap Backend...
 
-:: Tao lai cac thu muc media bi git xoa
-echo --- Dang tao lai cau truc thu muc media...
-if not exist media (
-    mkdir media
-)
-:: Tao cac folder con ben trong media (dua theo cau truc project cua ban)
-if not exist media\posts (
-    mkdir media\posts
-    echo     + Da tao media/posts
-)
+:: Tao thu muc media
+if not exist "backend\media" mkdir "backend\media"
 
-:: Kiem tra va kich hoat moi truong ao
-if exist .venv (
-    echo --- Dang kich hoat moi truong ao .venv...
-    call .venv\Scripts\activate
-) else (
-    echo [CANH BAO] Khong tim thay .venv, dang tien hanh tao moi va cai dat...
+:: Tao moi truong ao neu chua co
+if not exist ".venv" (
+    echo --- Dang tao moi truong ao .venv...
     python -m venv .venv
-    call .venv\Scripts\activate
-    pip install -r requirements.txt
 )
 
-:: Thuc hien cac lenh Database
-echo --- Dang kiem tra va migrate database...
-python manage.py migrate
+:: Cai dat thu vien BĂNG DUONG DAN TUYET DOI (Khong can activate)
+echo --- Dang tai thu vien Python vao dung .venv...
+"%ROOT_DIR%\.venv\Scripts\python.exe" -m pip install --upgrade pip
 
-:: Chay Seed Data
-:: Luu y: Dam bao ban da co file seed_data.json hoac script seed_data.py
-if exist seed_data.json (
-    echo --- Dang nap du lieu mau tu seed_data.json...
-    python manage.py loaddata seed_data.json
+if exist "backend\requirements.txt" (
+    "%ROOT_DIR%\.venv\Scripts\python.exe" -m pip install -r "backend\requirements.txt"
 ) else (
-    echo --- Dang chay lenh seed_data tu management command...
-    :: Theo cay thu mục cua ban: backend/accounts/management/commands/seed_data.py
-    python manage.py seed_data
+    echo [LOI] Khong tim thay backend\requirements.txt
 )
 
+:: Migrate va Seed bang Python cua venv
+cd backend
+echo --- Dang migrate database...
+"%ROOT_DIR%\.venv\Scripts\python.exe" manage.py migrate
+echo --- Dang nap du lieu mau (Seed Data)...
+"%ROOT_DIR%\.venv\Scripts\python.exe" manage.py seed_data
 cd ..
 
-:: 2. Xu ly Frontend
+:: --------------------------------------------------------
+:: 2. THIET LAP FRONTEND
+:: --------------------------------------------------------
 echo.
 echo [2/2] Dang thiet lap Frontend...
-cd frontend
-if not exist node_modules (
-    echo --- Dang tai thu vien node_modules (Vite)...
-    call npm install
-) else (
-    echo --- node_modules da ton tai, bo qua cai dat.
-)
-cd ..
 
-:: 3. Hoan tat
+if not exist "frontend" goto no_frontend
+
+cd frontend
+echo --- Dang vao thu muc frontend...
+
+if exist "node_modules" goto skip_npm
+
+echo --- Dang tai thu vien npm (node_modules)...
+call npm install
+goto fe_done
+
+:skip_npm
+echo --- node_modules da ton tai, bo qua npm install.
+
+:fe_done
+cd ..
+goto finish
+
+:no_frontend
+echo [LOI] Khong tim thay thu muc frontend!
+
+:: --------------------------------------------------------
+:: 3. HOAN TAT
+:: --------------------------------------------------------
+:finish
 echo.
 echo ======================================================
-echo   HOAN TAT!
-echo   - Da tao cac thu muc: backend/media, backend/media/posts
-echo   - Da chay Seed Data thanh cong.
-echo   - Luu y: Cac file .env chua duoc khoi tao (vui long tu dien).
+echo   DA THIET LAP XONG!
 echo ======================================================
 pause
