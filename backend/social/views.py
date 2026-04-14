@@ -10,7 +10,8 @@ from django.db.models.deletion import ProtectedError
 
 from accounts.models import HLV, HoiVien
 
-from .models import BaiDang, BinhLuan, TuongTac, TinNhan
+from .models import BaiDang, BinhLuan, TuongTac, TinNhan, ChiTietThongBao
+from .notification_service import create_system_notification
 from .serializers import (
 	BaiDangCreateSerializer,
 	BaiDangReadSerializer,
@@ -20,6 +21,7 @@ from .serializers import (
 	BinhLuanCreateSerializer,
 	TinNhanReadSerializer,
 	TinNhanCreateSerializer,
+	ThongBaoReadSerializer,
 )
 
 
@@ -89,6 +91,16 @@ class BaiDangFeedView(APIView):
 		serializer = BaiDangCreateSerializer(data=request.data, context={'request': request})
 		serializer.is_valid(raise_exception=True)
 		post = serializer.save()
+
+		recipients = User.objects.exclude(id=request.user.id)
+		author_name = BaiDangReadSerializer(post, context={'request': request}).data.get('author_name') or 'Nguoi dung'
+		create_system_notification(
+			recipients=recipients,
+			title='Bài viết mới',
+			content=f'{author_name} vừa đăng bài viết mới.',
+			notification_type='SYSTEM',
+		)
+
 		return Response(BaiDangReadSerializer(post, context={'request': request}).data, status=status.HTTP_201_CREATED)
 
 
@@ -402,4 +414,41 @@ class TinNhanMessageView(TinNhanBaseView):
 			return Response({'detail': 'Ban khong co quyen nhan tin nguoi nay.'}, status=status.HTTP_403_FORBIDDEN)
 
 		message = serializer.save(Id_NguoiGui=request.user, Id_NguoiNhan=receiver)
+		sender_name = self._resolve_display_name(request.user)
+		content_preview = (message.NoiDung or '').strip()
+		if len(content_preview) > 80:
+			content_preview = f'{content_preview[:77]}...'
+		create_system_notification(
+			recipients=[receiver],
+			title='Tin nhắn mới',
+			content=f'Bạn có tin nhắn mới từ {sender_name}: {content_preview}',
+			notification_type='MESSAGE',
+		)
 		return Response(TinNhanReadSerializer(message, context={'request': request}).data, status=status.HTTP_201_CREATED)
+
+
+class ThongBaoListView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def get(self, request):
+		notifications = ChiTietThongBao.objects.filter(Id_NguoiNhan=request.user).select_related('Id_ThongBao').order_by('-Id_ThongBao__NgayTao')
+		serializer = ThongBaoReadSerializer(notifications, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ThongBaoReadView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def patch(self, request, detail_id):
+		try:
+			detail = ChiTietThongBao.objects.get(id=detail_id, Id_NguoiNhan=request.user)
+		except ChiTietThongBao.DoesNotExist:
+			return Response({'detail': 'Thong bao khong ton tai.'}, status=status.HTTP_404_NOT_FOUND)
+
+		detail.DaXem = True
+		detail.save(update_fields=['DaXem'])
+		return Response({'detail': 'Da danh dau da xem.'}, status=status.HTTP_200_OK)
+
+	def post(self, request):
+		ChiTietThongBao.objects.filter(Id_NguoiNhan=request.user, DaXem=False).update(DaXem=True)
+		return Response({'detail': 'Da danh dau tat ca thong bao la da xem.'}, status=status.HTTP_200_OK)

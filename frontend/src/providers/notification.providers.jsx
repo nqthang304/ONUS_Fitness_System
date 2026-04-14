@@ -1,54 +1,43 @@
-import { createContext, useContext, useState, useMemo } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/providers/auth.providers";
+import notificationApi from "@/api/notificationApi";
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
   const { currentUserId } = useAuth();
   const normalizedUserId = String(currentUserId || "");
+  const [notifications, setNotifications] = useState([]);
 
-  const [thongBao] = useState([
-    {
-      Id: 1,
-      TieuDe: "Thông báo bài viết mới",
-      NoiDung: "Admin vừa đăng một bài viết mới. Hãy cùng đọc và thảo luận nhé!",
-      LoaiThongBao: "SYSTEM",
-      NgayTao: "2026-03-25T10:00:00",
-    },
-    {
-      Id: 2,
-      TieuDe: "Nhắc nhở lịch tập",
-      NoiDung: "Bạn có lịch tập vào lúc 16:00 hôm nay với HLV Trần B.",
-      LoaiThongBao: "REMINDER",
-      NgayTao: "2026-03-24T08:30:00",
-    },
-  ]);
+  const fetchNotifications = useCallback(async () => {
+    if (!normalizedUserId) {
+      setNotifications([]);
+      return;
+    }
 
-  const [chiTietThongBao, setChiTietThongBao] = useState([
-    { Id: 101, Id_NguoiNhan: "1", Id_ThongBao: 1, DaXem: false },
-    { Id: 102, Id_NguoiNhan: "2", Id_ThongBao: 1, DaXem: false },
-    { Id: 103, Id_NguoiNhan: "4", Id_ThongBao: 2, DaXem: false },
-    { Id: 104, Id_NguoiNhan: "3", Id_ThongBao: 2, DaXem: false },
-  ]);
+    try {
+      const response = await notificationApi.getNotifications();
+      const rows = Array.isArray(response?.data) ? response.data : [];
+      setNotifications(rows);
+    } catch (error) {
+      console.error("Không thể tải thông báo:", error);
+      setNotifications([]);
+    }
+  }, [normalizedUserId]);
 
-  const notifications = useMemo(() => {
-    if (!normalizedUserId) return [];
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
-    return chiTietThongBao
-      .filter((detail) => String(detail.Id_NguoiNhan) === normalizedUserId)
-      .map((detail) => {
-        const thongBaoGoc = thongBao.find((tb) => tb.Id === detail.Id_ThongBao);
-        if (!thongBaoGoc) return null;
+  useEffect(() => {
+    if (!normalizedUserId) return undefined;
 
-        return {
-          ChiTietId: detail.Id,
-          DaXem: detail.DaXem,
-          ...thongBaoGoc,
-        };
-      })
-      .filter(Boolean)
-      .sort((a, b) => new Date(b.NgayTao) - new Date(a.NgayTao));
-  }, [chiTietThongBao, normalizedUserId, thongBao]);
+    const pollId = window.setInterval(() => {
+      fetchNotifications();
+    }, 10000);
+
+    return () => window.clearInterval(pollId);
+  }, [fetchNotifications, normalizedUserId]);
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.DaXem).length,
@@ -56,23 +45,27 @@ export const NotificationProvider = ({ children }) => {
   );
 
   const markAsRead = (chiTietId) => {
-    setChiTietThongBao((prev) =>
+    setNotifications((prev) =>
       prev.map((detail) =>
-        detail.Id === chiTietId && String(detail.Id_NguoiNhan) === normalizedUserId
+        detail.ChiTietId === chiTietId
           ? { ...detail, DaXem: true }
           : detail
       )
     );
+
+    notificationApi.markAsRead(chiTietId).catch((error) => {
+      console.error("Không thể đánh dấu thông báo đã xem:", error);
+      fetchNotifications();
+    });
   };
 
   const markAllAsRead = () => {
-    setChiTietThongBao((prev) =>
-      prev.map((detail) =>
-        String(detail.Id_NguoiNhan) === normalizedUserId
-          ? { ...detail, DaXem: true }
-          : detail
-      )
-    );
+    setNotifications((prev) => prev.map((detail) => ({ ...detail, DaXem: true })));
+
+    notificationApi.markAllAsRead().catch((error) => {
+      console.error("Không thể đánh dấu tất cả thông báo đã xem:", error);
+      fetchNotifications();
+    });
   };
 
   return (

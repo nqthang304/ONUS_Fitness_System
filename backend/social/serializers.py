@@ -224,6 +224,19 @@ class TinNhanCreateSerializer(serializers.ModelSerializer):
         return TinNhanReadSerializer(instance, context=self.context).data
 
 
+class ThongBaoReadSerializer(serializers.ModelSerializer):
+    ChiTietId = serializers.IntegerField(source='id', read_only=True)
+    Id = serializers.IntegerField(source='Id_ThongBao_id', read_only=True)
+    TieuDe = serializers.CharField(source='Id_ThongBao.TieuDe', read_only=True)
+    NoiDung = serializers.CharField(source='Id_ThongBao.NoiDung', read_only=True)
+    LoaiThongBao = serializers.CharField(source='Id_ThongBao.LoaiThongBao', read_only=True)
+    NgayTao = serializers.DateTimeField(source='Id_ThongBao.NgayTao', format='%H:%M %d/%m/%Y', read_only=True)
+
+    class Meta:
+        model = ChiTietThongBao
+        fields = ['ChiTietId', 'DaXem', 'Id', 'TieuDe', 'NoiDung', 'LoaiThongBao', 'NgayTao']
+
+
 class BaiDangCreateSerializer(serializers.ModelSerializer):
     content = serializers.CharField(required=False, allow_blank=True, write_only=True)
     NoiDung = serializers.CharField(required=False, allow_blank=True, write_only=True)

@@ -7,6 +7,7 @@ from decimal import Decimal, ROUND_HALF_UP
 import traceback
 
 from accounts.models import HLV, HoiVien
+from social.notification_service import create_system_notification
 
 from .models import LichTap, BuaAn, BaiTap, ChiTietBuaAn, ChiTietBaiTap, ChiSoCoThe
 from .serializers import (
@@ -212,6 +213,12 @@ class CreateLichTapView(APIView):
 				GioBatDau=gio_bat_dau,
 				GioKetThuc=gio_ket_thuc,
 			)
+			create_system_notification(
+				recipients=[hoi_vien.Id_TaiKhoan],
+				title='Lịch tập mới',
+				content='Bạn vừa được tạo lịch tập mới từ huấn luyện viên.',
+				notification_type='REMINDER',
+			)
 
 			serializer = LichTapNormalizedSerializer(new_schedule)
 			return Response(
@@ -368,6 +375,13 @@ class CreateBaiTapView(APIView):
 			ThuTuNgayTap=thu_tu_ngay_tap,
 		)
 
+		create_system_notification(
+			recipients=[hoi_vien.Id_TaiKhoan],
+			title='Bài tập mới',
+			content='Bạn vừa có ngày tập mới trong giáo án.',
+			notification_type='REMINDER',
+		)
+
 		return Response(
 			{
 				'detail': 'Tạo ngày tập thành công.',
@@ -430,6 +444,13 @@ class CreateChiTietBaiTapView(APIView):
 			SoHiep=payload.get('so_hiep'),
 			Nghi=payload.get('nghi') or '',
 			CuongDo=payload.get('cuong_do') or '',
+		)
+
+		create_system_notification(
+			recipients=[baitap.Id_HoiVien.Id_TaiKhoan],
+			title='Bài tập mới',
+			content=f"Bạn vừa được thêm bài tập '{detail.TenBai}'.",
+			notification_type='REMINDER',
 		)
 
 		return Response(
@@ -625,6 +646,14 @@ class CreateBuaAnView(APIView):
 			TenBua=payload['ten_bua'],
 		)
 
+		if created:
+			create_system_notification(
+				recipients=[hoi_vien.Id_TaiKhoan],
+				title='Lịch ăn mới',
+				content='Bạn vừa có lịch ăn mới được giao bởi huấn luyện viên.',
+				notification_type='REMINDER',
+			)
+
 		response_data = BuaAnTongHopSerializer(bua_an).data
 		return Response(
 			{
@@ -682,6 +711,13 @@ class CreateChiTietBuaAnView(APIView):
 			Protein=payload['protein'],
 			Carb=payload['carb'],
 			Fat=payload['fat'],
+		)
+
+		create_system_notification(
+			recipients=[bua_an.Id_HoiVien.Id_TaiKhoan],
+			title='Lịch ăn mới',
+			content=f"Bạn vừa được thêm món ăn '{detail.TenThucPham}'.",
+			notification_type='REMINDER',
 		)
 
 		return Response(
@@ -859,6 +895,13 @@ class CreateChiSoCoTheView(APIView):
 				PhanTramMo=round(phan_tram_mo, 2),
 				PhanTramCo=round(phan_tram_co, 2),
 				TyLeTraoDoiChat=int(round(bmr)),
+			)
+
+			create_system_notification(
+				recipients=[hoi_vien.Id_TaiKhoan],
+				title='Kết quả tập luyện mới',
+				content='Đã có kết quả tập luyện/chỉ số cơ thể mới được cập nhật.',
+				notification_type='REMINDER',
 			)
 
 			result = ChiSoCoTheSerializer(record).data

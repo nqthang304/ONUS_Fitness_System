@@ -19,7 +19,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from accounts.views import AccountDetailView, AccountListView, AccountStatusView, ChangePasswordView, CustomLoginView, SelfProfileUpdateView, TrainerMemberListView, UserProfileView
-from social.views import BaiDangBinhLuanView, BaiDangDeleteView, BaiDangFeedView, BaiDangTuongTacView, TinNhanConversationView, TinNhanMessageView
+from social.views import BaiDangBinhLuanView, BaiDangDeleteView, BaiDangFeedView, BaiDangTuongTacView, ThongBaoListView, ThongBaoReadView, TinNhanConversationView, TinNhanMessageView
 from fitness.views import (
     LichTapByRoleView,
     CreateLichTapView,
@@ -53,6 +53,9 @@ urlpatterns = [
     path('api/posts/<int:post_id>/comments/', BaiDangBinhLuanView.as_view(), name='post-comments'),
     path('api/messages/conversations/', TinNhanConversationView.as_view(), name='message-conversations'),
     path('api/messages/', TinNhanMessageView.as_view(), name='messages'),
+    path('api/notifications/', ThongBaoListView.as_view(), name='notification-list'),
+    path('api/notifications/read-all/', ThongBaoReadView.as_view(), name='notification-read-all'),
+    path('api/notifications/<int:detail_id>/read/', ThongBaoReadView.as_view(), name='notification-read'),
     path('api/accounts/', AccountListView.as_view(), name='account-list'),
     path('api/accounts/<int:user_id>/', AccountDetailView.as_view(), name='account-detail'),
     path('api/accounts/<int:user_id>/status/', AccountStatusView.as_view(), name='account-status'),
