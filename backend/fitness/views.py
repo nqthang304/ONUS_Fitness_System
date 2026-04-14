@@ -22,31 +22,20 @@ from .serializers import (
 )
 
 
-MEAL_TYPE_MAP = {
+MEAL_TYPE_ALIASES = {
 	'breakfast': 'BuaSang',
 	'lunch': 'BuaTrua',
 	'dinner': 'BuaToi',
 	'snack': 'BuaPhu',
-	'BuaSang': 'BuaSang',
-	'BuaTrua': 'BuaTrua',
-	'BuaToi': 'BuaToi',
-	'BuaPhu': 'BuaPhu',
 }
 
-REVERSE_MEAL_TYPE_MAP = {
-	'BuaSang': 'breakfast',
-	'BuaTrua': 'lunch',
-	'BuaToi': 'dinner',
-	'BuaPhu': 'snack',
-}
+CANONICAL_MEAL_TYPES = {'BuaSang', 'BuaTrua', 'BuaToi', 'BuaPhu'}
 
 
 def normalize_meal_type(value):
-	return MEAL_TYPE_MAP.get(value, value)
-
-
-def meal_key_from_value(value):
-	return REVERSE_MEAL_TYPE_MAP.get(value, 'snack')
+	if value in CANONICAL_MEAL_TYPES:
+		return value
+	return MEAL_TYPE_ALIASES.get(value, value)
 
 
 def calculate_age_from_dob(dob):
@@ -585,11 +574,14 @@ class BuaAnByUserIdView(APIView):
 		).order_by('id')
 
 		serializer = BuaAnTongHopSerializer(meal_qs, many=True)
+		results = serializer.data
+		for meal in results:
+			meal['TenBua'] = normalize_meal_type(meal.get('TenBua'))
 		return Response(
 			{
 				'user_id': user_id,
-				'count': len(serializer.data),
-				'results': serializer.data,
+				'count': len(results),
+				'results': results,
 			},
 			status=status.HTTP_200_OK,
 		)

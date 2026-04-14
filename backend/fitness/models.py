@@ -21,8 +21,15 @@ class LichTap(models.Model):
 
 
 class BuaAn(models.Model):
+    TEN_BUA_CHOICES = [
+        ('BuaSang', 'BuaSang'),
+        ('BuaTrua', 'BuaTrua'),
+        ('BuaToi', 'BuaToi'),
+        ('BuaPhu', 'BuaPhu'),
+    ]
+
     Id_HoiVien = models.ForeignKey('accounts.HoiVien', on_delete=models.CASCADE)
-    TenBua = models.CharField(max_length=20)
+    TenBua = models.CharField(max_length=20, choices=TEN_BUA_CHOICES)
 
 
 class ChiTietBuaAn(models.Model):
