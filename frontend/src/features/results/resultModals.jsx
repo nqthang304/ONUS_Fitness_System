@@ -15,10 +15,17 @@ const InputGroup = ({ label, value, onChange }) => (
   </div>
 );
 
-export const ResultModals = ({ isAddOpen, setIsAddOpen, memberData, handleAddDish, handleAddResult }) => {
+export const ResultModals = ({ isAddOpen, setIsAddOpen, memberData, addError, handleAddDish, handleAddResult }) => {
   const [formData, setFormData] = useState({
     CanNang: "", ChieuCao: "", VongBung: "", VongMong: ""
   });
+
+  const canSubmit = [
+    formData.CanNang,
+    formData.ChieuCao,
+    formData.VongBung,
+    formData.VongMong,
+  ].every((value) => String(value || "").trim() !== "" && Number(value) > 0);
   
   const [calculated, setCalculated] = useState({
     bmi: null, fat: null, muscle: null, bmr: null
@@ -26,12 +33,24 @@ export const ResultModals = ({ isAddOpen, setIsAddOpen, memberData, handleAddDis
 
   // Chạy các công thức tính toán thời gian thực khi Cân nặng & Chiều cao thay đổi
   useEffect(() => {
+    const hasAllRequiredFields = [
+      formData.CanNang,
+      formData.ChieuCao,
+      formData.VongBung,
+      formData.VongMong,
+    ].every((value) => String(value || "").trim() !== "");
+
+    if (!hasAllRequiredFields) {
+      setCalculated({ bmi: null, fat: null, muscle: null, bmr: null });
+      return;
+    }
+
     const w = parseFloat(formData.CanNang);
     const h = parseFloat(formData.ChieuCao); // Đơn vị: cm
     const age = memberData.age;
     const gender = memberData.gender;
 
-    if (w > 0 && h > 0) {
+    if (w > 0 && h > 0 && Number.isFinite(age) && age > 0 && gender) {
       // 1. Chỉ số khối cơ thể (BMI)
       const h_met = h / 100;
       const bmi = w / (h_met * h_met);
@@ -66,20 +85,26 @@ export const ResultModals = ({ isAddOpen, setIsAddOpen, memberData, handleAddDis
     } else {
       setCalculated({ bmi: null, fat: null, muscle: null, bmr: null });
     }
-  }, [formData.CanNang, formData.ChieuCao, memberData]);
+  }, [
+    formData.CanNang,
+    formData.ChieuCao,
+    formData.VongBung,
+    formData.VongMong,
+    memberData?.age,
+    memberData?.gender,
+  ]);
 
-  const submitForm = () => {
-    handleAddResult({
+  const submitForm = async () => {
+    const isSuccess = await handleAddResult({
       CanNang: Number(formData.CanNang),
       ChieuCao: Number(formData.ChieuCao),
       VongBung: Number(formData.VongBung),
       VongMong: Number(formData.VongMong),
-      BMI: Number(calculated.bmi),
-      PhanTramMo: Number(calculated.fat),
-      PhamTramCo: Number(calculated.muscle),
-      TyLeTraoDoiChat: Number(calculated.bmr),
     });
-    setFormData({ CanNang: "", ChieuCao: "", VongBung: "", VongMong: "" });
+
+    if (isSuccess) {
+      setFormData({ CanNang: "", ChieuCao: "", VongBung: "", VongMong: "" });
+    }
   };
 
   return (
@@ -122,17 +147,25 @@ export const ResultModals = ({ isAddOpen, setIsAddOpen, memberData, handleAddDis
         </div>
 
         {/* Khối kết quả dự tính */}
-        <div className="bg-slate-100 rounded-2xl p-4 mt-2 space-y-3">
-          <p className="text-xs font-medium text-slate-500 mb-1">Kết quả dự tính:</p>
-          <div className="flex justify-between text-sm"><span className="text-slate-600">BMI:</span> <span className="font-bold">{calculated.bmi || "-"}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-slate-600">Tỷ lệ mỡ:</span> <span className="font-bold">{calculated.fat || "-"} %</span></div>
-          <div className="flex justify-between text-sm"><span className="text-slate-600">Tỷ lệ cơ:</span> <span className="font-bold">{calculated.muscle || "-"} %</span></div>
-          <div className="flex justify-between text-sm"><span className="text-slate-600">BMR (Trao đổi chất):</span> <span className="font-bold">{calculated.bmr || "-"} kcal</span></div>
-        </div>
+        {calculated.bmi && (
+          <div className="bg-slate-100 rounded-2xl p-4 mt-2 space-y-3">
+            <p className="text-xs font-medium text-slate-500 mb-1">Kết quả dự tính:</p>
+            <div className="flex justify-between text-sm"><span className="text-slate-600">BMI:</span> <span className="font-bold">{calculated.bmi}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-slate-600">Tỷ lệ mỡ:</span> <span className="font-bold">{calculated.fat} %</span></div>
+            <div className="flex justify-between text-sm"><span className="text-slate-600">Tỷ lệ cơ:</span> <span className="font-bold">{calculated.muscle} %</span></div>
+            <div className="flex justify-between text-sm"><span className="text-slate-600">BMR (Trao đổi chất):</span> <span className="font-bold">{calculated.bmr} kcal</span></div>
+          </div>
+        )}
+
+        {addError && (
+          <div className="bg-red-50 p-3 text-sm text-red-600 border border-red-100 rounded-xl mt-2">
+            {addError}
+          </div>
+        )}
 
         <DialogFooter className="mt-4 gap-3 sm:space-x-0">
           <Button variant="ghost" className="rounded-xl flex-1 text-slate-500" onClick={() => setIsAddOpen(false)}>Hủy</Button>
-          <Button onClick={submitForm} disabled={!calculated.bmi} className="bg-blue-600 hover:bg-blue-700 rounded-xl flex-1 shadow-sm">
+          <Button onClick={submitForm} disabled={!canSubmit} className="bg-blue-600 hover:bg-blue-700 rounded-xl flex-1 shadow-sm">
             Lưu kết quả
           </Button>
         </DialogFooter>

@@ -68,10 +68,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'ket-qua',
-        children: [
-          { index: true, element: <ResultPage /> }, // Hub chọn (HLV) hoặc Xem của mình (Hội viên)
-          { path: ":memberId", element: <ResultPage /> } // Xem chi tiết theo ID (HLV)
-        ]
+        element: <ResultPage />
       },
       {
         path: "tai-khoan",

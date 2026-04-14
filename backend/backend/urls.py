@@ -33,6 +33,9 @@ from fitness.views import (
     CreateChiTietBuaAnView,
     DeleteBuaAnView,
     DeleteChiTietBuaAnView,
+    CreateChiSoCoTheView,
+    DeleteChiSoCoTheView,
+    ChiSoCoTheByUserIdView,
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -60,6 +63,9 @@ urlpatterns = [
     path('api/lich-an/create-food/', CreateChiTietBuaAnView.as_view(), name='create-chi-tiet-bua-an'),
     path('api/lich-an/delete-meal/<int:bua_an_id>/', DeleteBuaAnView.as_view(), name='delete-bua-an'),
     path('api/lich-an/delete-food/<int:detail_id>/', DeleteChiTietBuaAnView.as_view(), name='delete-chi-tiet-bua-an'),
+    path('api/chi-so-co-the/create/', CreateChiSoCoTheView.as_view(), name='create-chi-so-co-the'),
+    path('api/chi-so-co-the/delete/<int:chisocothe_id>/', DeleteChiSoCoTheView.as_view(), name='delete-chi-so-co-the'),
+    path('api/chi-so-co-the/user/<int:user_id>/', ChiSoCoTheByUserIdView.as_view(), name='chi-so-co-the-by-user-id'),
 ]
 
 if settings.DEBUG:

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import LichTap, BuaAn, BaiTap, ChiTietBuaAn, ChiTietBaiTap
+from .models import ChiSoCoThe, LichTap, BuaAn, BaiTap, ChiTietBuaAn, ChiTietBaiTap
 
 
 class LichTapNormalizedSerializer(serializers.ModelSerializer):
@@ -117,3 +117,30 @@ class ChiTietBuaAnCreateSerializer(serializers.Serializer):
 	protein = serializers.DecimalField(max_digits=6, decimal_places=2)
 	carb = serializers.DecimalField(max_digits=6, decimal_places=2)
 	fat = serializers.DecimalField(max_digits=6, decimal_places=2)
+
+
+class ChiSoCoTheSerializer(serializers.ModelSerializer):
+    id_hoivien = serializers.IntegerField(source='Id_HoiVien_id', read_only=True)
+
+    class Meta:
+        model = ChiSoCoThe
+        fields = [
+			'id',
+			'id_hoivien',
+			'CanNang',
+			'ChieuCao',
+			'VongBung',
+			'VongMong',
+			'BMI',
+			'PhanTramMo',
+			'PhanTramCo',
+			'TyLeTraoDoiChat',
+			'NgayTao',
+		]
+        
+class ChiSoCoTheCreateSerializer(serializers.Serializer):
+	hoi_vien_id = serializers.IntegerField()
+	can_nang = serializers.DecimalField(max_digits=5, decimal_places=2, min_value=0.01)
+	chieu_cao = serializers.DecimalField(max_digits=5, decimal_places=2, min_value=0.01)
+	vong_bung = serializers.DecimalField(max_digits=5, decimal_places=2, min_value=0.01)
+	vong_mong = serializers.DecimalField(max_digits=5, decimal_places=2, min_value=0.01)

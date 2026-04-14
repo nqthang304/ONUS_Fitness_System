@@ -48,6 +48,11 @@ const MemberPage = () => {
             return;
         }
 
+        if (feature === 'ket-qua' && id) {
+            navigate('/ket-qua', { state: { memberId: String(id) } });
+            return;
+        }
+
         if (feature === 'bai-tap' && id) {
             navigate('/bai-tap', { state: { memberId: String(id) } });
             return;
