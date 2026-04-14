@@ -4,20 +4,37 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import postApi from "@/api/postApi";
+import { useAuth } from "@/providers/auth.providers";
 
 const PostList = ({ posts, onUpdatePost, onDeletePost }) => {
+    const { user } = useAuth();
     const [selectedPost, setSelectedPost] = useState(null);
     const [commentInput, setCommentInput] = useState("");
     const [localComments, setLocalComments] = useState([]);
+    const [isLoadingComments, setIsLoadingComments] = useState(false);
+    const [isSendingComment, setIsSendingComment] = useState(false);
     
     const bottomRef = useRef(null);
 
     useEffect(() => {
-        if (selectedPost) {
-            setLocalComments(selectedPost.comments_data || []);
-        } else {
+        if (!selectedPost?.id) {
             setLocalComments([]);
+            return;
         }
+
+        setIsLoadingComments(true);
+        postApi.getComments(selectedPost.id)
+            .then((response) => {
+                setLocalComments(response?.data || []);
+            })
+            .catch((error) => {
+                console.error("Không thể tải bình luận:", error);
+                setLocalComments([]);
+            })
+            .finally(() => {
+                setIsLoadingComments(false);
+            });
     }, [selectedPost]);
 
     useEffect(() => {
@@ -26,19 +43,32 @@ const PostList = ({ posts, onUpdatePost, onDeletePost }) => {
         }
     }, [localComments]); 
 
-    const handleSendComment = () => {
-        if (!commentInput.trim()) return;
+    const handleSendComment = async () => {
+        if (!commentInput.trim() || !selectedPost?.id || isSendingComment) return;
 
-        const newComment = {
-            id: Date.now(), 
-            user: "Me", 
-            text: commentInput,
-        };
+        const text = commentInput.trim();
+        setIsSendingComment(true);
 
-
-        setLocalComments([...localComments, newComment]);
-
-        setCommentInput("");
+        try {
+            const response = await postApi.createComment(selectedPost.id, { text });
+            const createdComment = response?.data;
+            setLocalComments((prev) => [...prev, createdComment]);
+            setSelectedPost((prev) => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    comment_count: Number(prev.comment_count || 0) + 1,
+                };
+            });
+            onUpdatePost?.(selectedPost.id, {
+                comment_count: Number(selectedPost.comment_count || 0) + 1,
+            });
+            setCommentInput("");
+        } catch (error) {
+            console.error("Không thể gửi bình luận:", error);
+        } finally {
+            setIsSendingComment(false);
+        }
     };
 
     const handleKeyDown = (e) => {
@@ -61,8 +91,16 @@ const PostList = ({ posts, onUpdatePost, onDeletePost }) => {
             ))}
 
             {/* POPUP CHI TIẾT BÌNH LUẬN */}
-            <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
-                <DialogContent className="max-w-2xl h-[50vh] p-0 overflow-hidden rounded-2xl flex flex-col">
+            <Dialog
+                open={!!selectedPost}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setSelectedPost(null);
+                        setCommentInput("");
+                    }
+                }}
+            >
+                <DialogContent className="w-[95vw] max-w-4xl h-[78vh] p-0 overflow-hidden rounded-2xl flex flex-col">
                     
                     <DialogHeader className="p-4 border-b shrink-0">
                         <DialogTitle className="text-center font-bold text-slate-900">Bài viết của {selectedPost?.author_name}</DialogTitle>
@@ -74,7 +112,7 @@ const PostList = ({ posts, onUpdatePost, onDeletePost }) => {
                                 <span className="text-[11px] text-slate-400 mb-1 order-first">
                                     {selectedPost?.created_at}
                                 </span>
-                                <p className="text-slate-800 text-[15px] leading-relaxed">
+                                <p className="text-slate-800 text-[15px] leading-relaxed whitespace-pre-line break-words">
                                     {selectedPost?.content}
                                 </p>
                             </div>
@@ -83,15 +121,20 @@ const PostList = ({ posts, onUpdatePost, onDeletePost }) => {
 
                             <div className="space-y-4 mb-6">
                                 <h4 className="font-bold text-slate-900">Bình luận</h4>
-                                {localComments.length > 0 ? (
+                                {isLoadingComments ? (
+                                    <p className="text-slate-400 text-center py-4">Đang tải bình luận...</p>
+                                ) : localComments.length > 0 ? (
                                     localComments.map(cmt => (
                                         <div key={cmt.id} className="flex gap-3">
                                             <Avatar className="w-8 h-8">
-                                                <AvatarFallback>{cmt.user.charAt(0)}</AvatarFallback>
+                                                <AvatarFallback>{String(cmt.user_name || "U").charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div className="bg-slate-100 p-3 rounded-2xl flex-1">
-                                                <p className="text-xs font-bold">{cmt.user}</p>
-                                                <p className="text-sm text-slate-800">{cmt.text}</p>
+                                                <div className="mb-1 flex items-center justify-between gap-2">
+                                                    <p className="text-xs font-bold">{cmt.user_name}</p>
+                                                    <span className="text-[11px] text-slate-400">{cmt.created_at}</span>
+                                                </div>
+                                                <p className="text-sm text-slate-800 whitespace-pre-line break-words">{cmt.text}</p>
                                             </div>
                                         </div>
                                     ))
@@ -106,7 +149,7 @@ const PostList = ({ posts, onUpdatePost, onDeletePost }) => {
                     <div className="p-4 border-t bg-white shrink-0 mt-auto">
                         <div className="flex gap-3 items-center">
                             <Avatar className="w-8 h-8">
-                                <AvatarFallback>Me</AvatarFallback>
+                                <AvatarFallback>{String(user?.username || "M").charAt(0)}</AvatarFallback>
                             </Avatar>
                             <input
                                 type="text"
@@ -119,11 +162,11 @@ const PostList = ({ posts, onUpdatePost, onDeletePost }) => {
                             <button 
                                 onClick={handleSendComment}
                                 className={`font-bold text-sm px-2 transition-colors ${
-                                    commentInput.trim() ? "text-onus-blue cursor-pointer" : "text-slate-300 cursor-not-allowed"
+                                    commentInput.trim() && !isSendingComment ? "text-onus-blue cursor-pointer" : "text-slate-300 cursor-not-allowed"
                                 }`}
-                                disabled={!commentInput.trim()}
+                                disabled={!commentInput.trim() || isSendingComment}
                             >
-                                Gửi
+                                {isSendingComment ? "Đang gửi..." : "Gửi"}
                             </button>
                         </div>
                     </div>

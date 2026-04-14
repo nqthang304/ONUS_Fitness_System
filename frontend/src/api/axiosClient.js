@@ -11,6 +11,7 @@ axiosClient.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('access_token');
         const requestUrl = `${config.baseURL || ''}${config.url || ''}`;
+        const isFormData = typeof FormData !== 'undefined' && config.data instanceof FormData;
 
         console.debug("[axios] request", {
             url: requestUrl,
@@ -19,6 +20,11 @@ axiosClient.interceptors.request.use(
         
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        if (isFormData && config.headers) {
+            delete config.headers['Content-Type'];
+            delete config.headers['content-type'];
         }
 
         console.debug("[axios] authorization header", {
