@@ -18,31 +18,17 @@ const normalizeMember = (member) => ({
 });
 
 const INITIAL_MEALS = {
-  breakfast: [],
-  lunch: [],
-  dinner: [],
-  snack: [],
+  BuaSang: [],
+  BuaTrua: [],
+  BuaToi: [],
+  BuaPhu: [],
 };
 
 const INITIAL_MEAL_META = {
-  breakfast: null,
-  lunch: null,
-  dinner: null,
-  snack: null,
-};
-
-const MEAL_TYPE_TO_BACKEND = {
-  breakfast: "BuaSang",
-  lunch: "BuaTrua",
-  dinner: "BuaToi",
-  snack: "BuaPhu",
-};
-
-const BACKEND_TO_MEAL_TYPE = {
-  BuaSang: "breakfast",
-  BuaTrua: "lunch",
-  BuaToi: "dinner",
-  BuaPhu: "snack",
+  BuaSang: null,
+  BuaTrua: null,
+  BuaToi: null,
+  BuaPhu: null,
 };
 
 const normalizeMealFood = (food) => ({
@@ -146,8 +132,8 @@ const MealSchedulePage = () => {
       const nextMealMeta = { ...INITIAL_MEAL_META };
 
       results.forEach((meal) => {
-        const mealType = BACKEND_TO_MEAL_TYPE[meal?.TenBua];
-        if (!mealType) return;
+        const mealType = meal?.TenBua;
+        if (!mealType || !(mealType in nextMeals)) return;
 
         nextMealMeta[mealType] = String(meal?.Id_LichAn || meal?.id || "");
         const foods = Array.isArray(meal?.chitietbuaan) ? meal.chitietbuaan : [];
@@ -229,7 +215,7 @@ const MealSchedulePage = () => {
       if (!mealId) {
         const mealResponse = await mealApi.createMeal({
           hoi_vien_id: Number(hoiVienId),
-          ten_bua: MEAL_TYPE_TO_BACKEND[currentMealType],
+          ten_bua: currentMealType,
         });
         mealId = String(mealResponse?.data?.data?.Id_LichAn || mealResponse?.data?.data?.id || "");
         setMealMeta((prev) => ({ ...prev, [currentMealType]: mealId }));

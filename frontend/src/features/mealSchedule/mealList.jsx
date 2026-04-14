@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 
 export const MealList = ({ meals, isEditing, onAddClick, onDeleteClick }) => {
-  const mealTypes = { breakfast: "Bữa sáng", lunch: "Bữa trưa", dinner: "Bữa tối", snack: "Bữa phụ" };
+  const mealTypes = { BuaSang: "Bữa sáng", BuaTrua: "Bữa trưa", BuaToi: "Bữa tối", BuaPhu: "Bữa phụ" };
 
   return (
     <div className="font-figtree space-y-1">
