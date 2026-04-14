@@ -4,112 +4,81 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/providers/auth.providers";
+import messageApi from "@/api/messageApi";
 
-// --- MOCK DATA ---
-const MOCK_CHAT_USERS = [
-  {
-    id: "1",
-    name: "Quản trị hệ thống",
-    role: "ADMIN",
-    avatar: "AD",
-    avatarColor: "bg-slate-700",
-  },
-  {
-    id: "2",
-    name: "HLV Trần B",
-    role: "HLV",
-    avatar: "TB",
-    avatarColor: "bg-emerald-500",
-  },
-  {
-    id: "3",
-    name: "Hội viên C",
-    role: "HOIVIEN",
-    hlv_id: "2",
-    avatar: "HC",
-    avatarColor: "bg-blue-500",
-  },
-  {
-    id: "4",
-    name: "Nguyễn Văn A",
-    role: "HOIVIEN",
-    hlv_id: "2",
-    avatar: "VA",
-    avatarColor: "bg-indigo-500",
-  },
-];
+const buildInitials = (name) => {
+  const value = String(name || "").trim();
+  if (!value) return "U";
 
-const threadKey = (idA, idB) => [String(idA), String(idB)].sort().join("_");
+  const parts = value.split(/\s+/).filter(Boolean);
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase();
+  }
 
-const MOCK_MESSAGES = {
-  [threadKey("2", "3")]: [
-    { id: "m1", senderId: "2", text: "Chào em, hôm nay tập bài gì nhỉ?", time: "10:00" },
-    { id: "m2", senderId: "3", text: "Dạ hôm nay tập chân ạ.", time: "10:05" },
-    { id: "m3", senderId: "2", text: "Nhớ tập đúng giờ nhé em!", time: "10:30" },
-  ],
-  [threadKey("2", "4")]: [
-    { id: "m4", senderId: "2", text: "Ngày mai tăng tạ nhé.", time: "09:00" },
-    { id: "m5", senderId: "4", text: "Dạ vâng ạ.", time: "09:05" },
-  ],
-  [threadKey("1", "2")]: [
-    { id: "m6", senderId: "1", text: "Nhắc HLV cập nhật kết quả tuần này.", time: "08:40" },
-    { id: "m7", senderId: "2", text: "Em sẽ cập nhật trong hôm nay ạ.", time: "08:45" },
-  ],
+  return `${parts[0][0] || ""}${parts[parts.length - 1][0] || ""}`.toUpperCase();
 };
 
-const MOCK_UNREAD_BY_THREAD = {
-  [threadKey("2", "3")]: { "2": 0, "3": 1 },
-  [threadKey("2", "4")]: { "2": 0, "4": 1 },
-  [threadKey("1", "2")]: { "1": 0, "2": 1 },
-};
+const pickAvatarColor = (idLikeValue) => {
+  const palette = [
+    "bg-slate-700",
+    "bg-blue-600",
+    "bg-indigo-600",
+    "bg-emerald-600",
+    "bg-cyan-600",
+    "bg-rose-600",
+  ];
 
-const formatThreadTime = (time) => time || "--:--";
+  const raw = String(idLikeValue || "");
+  const sum = raw.split("").reduce((total, ch) => total + ch.charCodeAt(0), 0);
+  return palette[sum % palette.length];
+};
 
 const MessagePage = () => {
-  const { user, role } = useAuth();
-  const currentRole = String(role || "").toLowerCase();
-  const currentUserId = String(user?.id || "");
+  const { user } = useAuth();
+  const currentUserId = String(user?.id || user?.account_info?.id || "");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeChatId, setActiveChatId] = useState(null);
-  const [messages, setMessages] = useState(MOCK_MESSAGES);
+  const [conversations, setConversations] = useState([]);
+  const [currentMessages, setCurrentMessages] = useState([]);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [inputText, setInputText] = useState("");
   
   const messagesEndRef = useRef(null);
 
-  const availablePartners = MOCK_CHAT_USERS.filter((chatUser) => {
-    if (!currentUserId || chatUser.id === currentUserId) return false;
+  useEffect(() => {
+    const loadConversations = async () => {
+      try {
+        const response = await messageApi.getConversations();
+        const rows = Array.isArray(response?.data) ? response.data : [];
 
-    const partnerRole = String(chatUser.role || "").toLowerCase();
+        const mapped = rows.map((item) => {
+          const id = String(item.partner_id || "");
+          const name = String(item.partner_name || "Người dùng");
+          return {
+            id,
+            name,
+            avatar: buildInitials(name),
+            avatarColor: pickAvatarColor(id || name),
+            time: item.last_message_time_display || "--:--",
+            lastMessage: item.last_message || "Chưa có tin nhắn",
+            unread: Number(item.unread_count || 0),
+          };
+        });
 
-    if (currentRole === "hlv") {
-      return partnerRole === "hoivien" && String(chatUser.hlv_id) === currentUserId;
-    }
+        setConversations(mapped);
+      } catch (error) {
+        console.error("Không thể tải danh sách cuộc trò chuyện:", error);
+        setConversations([]);
+      }
+    };
 
-    if (currentRole === "hoivien") {
-      return partnerRole === "hlv" && chatUser.id === String(user?.hlv_id || "");
-    }
+    loadConversations();
+  }, []);
 
-    return true;
-  });
-
-  const conversations = availablePartners
-    .map((partner) => {
-      const key = threadKey(currentUserId, partner.id);
-      const threadMessages = messages[key] || [];
-      const lastMessage = threadMessages[threadMessages.length - 1];
-
-      return {
-        id: partner.id,
-        name: partner.name,
-        avatar: partner.avatar,
-        avatarColor: partner.avatarColor,
-        time: formatThreadTime(lastMessage?.time),
-        lastMessage: lastMessage?.text || "Chưa có tin nhắn",
-        unread: MOCK_UNREAD_BY_THREAD[key]?.[currentUserId] || 0,
-      };
-    })
-    .filter((chat) => chat.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredConversations = conversations.filter((chat) =>
+    chat.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     if (activeChatId && !conversations.some((chat) => chat.id === activeChatId)) {
@@ -117,10 +86,44 @@ const MessagePage = () => {
     }
   }, [activeChatId, conversations]);
 
-  // Lấy thông tin người đang chat cùng
+  useEffect(() => {
+    const loadMessages = async () => {
+      if (!activeChatId) {
+        setCurrentMessages([]);
+        return;
+      }
+
+      setIsLoadingMessages(true);
+      try {
+        const response = await messageApi.getMessages(activeChatId);
+        const rows = Array.isArray(response?.data) ? response.data : [];
+        const mapped = rows.map((msg) => ({
+          id: String(msg.id),
+          senderId: String(msg.sender_id),
+          text: msg.text,
+          time: msg.time,
+        }));
+        setCurrentMessages(mapped);
+
+        setConversations((prev) =>
+          prev.map((item) =>
+            item.id === String(activeChatId)
+              ? { ...item, unread: 0 }
+              : item
+          )
+        );
+      } catch (error) {
+        console.error("Không thể tải tin nhắn:", error);
+        setCurrentMessages([]);
+      } finally {
+        setIsLoadingMessages(false);
+      }
+    };
+
+    loadMessages();
+  }, [activeChatId]);
+
   const activeChatData = conversations.find(c => c.id === activeChatId);
-  const activeThreadId = activeChatId ? threadKey(currentUserId, activeChatId) : null;
-  const currentMessages = activeThreadId ? messages[activeThreadId] || [] : [];
 
   // Tự động cuộn xuống tin nhắn mới nhất
   const scrollToBottom = () => {
@@ -134,22 +137,42 @@ const MessagePage = () => {
   // Xử lý gửi tin nhắn
   const handleSendMessage = (e) => {
     e?.preventDefault();
-    if (!inputText.trim()) return;
+    if (!inputText.trim() || !activeChatId) return;
 
-    const newMessage = {
-      id: Date.now().toString(),
-      senderId: currentUserId,
-      text: inputText,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const send = async () => {
+      try {
+        const response = await messageApi.sendMessage(activeChatId, inputText.trim());
+        const created = response?.data;
+
+        if (created) {
+          setCurrentMessages((prev) => [
+            ...prev,
+            {
+              id: String(created.id),
+              senderId: String(created.sender_id),
+              text: created.text,
+              time: created.time,
+            },
+          ]);
+
+          setConversations((prev) =>
+            prev
+              .map((item) =>
+                item.id === String(activeChatId)
+                  ? { ...item, lastMessage: created.text, time: created.time }
+                  : item
+              )
+              .sort((a, b) => (a.id === String(activeChatId) ? -1 : b.id === String(activeChatId) ? 1 : 0))
+          );
+        }
+
+        setInputText("");
+      } catch (error) {
+        console.error("Không thể gửi tin nhắn:", error);
+      }
     };
 
-    if (!activeThreadId) return;
-
-    setMessages(prev => ({
-      ...prev,
-      [activeThreadId]: [...(prev[activeThreadId] || []), newMessage]
-    }));
-    setInputText("");
+    send();
   };
 
   return (
@@ -171,7 +194,7 @@ const MessagePage = () => {
 
           {/* Danh sách người chat */}
           <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
-            {conversations.map((chat) => (
+            {filteredConversations.map((chat) => (
               <div 
                 key={chat.id}
                 onClick={() => setActiveChatId(chat.id)}
@@ -198,7 +221,7 @@ const MessagePage = () => {
               </div>
             ))}
 
-            {conversations.length === 0 && (
+            {filteredConversations.length === 0 && (
               <div className="p-4 text-sm text-slate-400 text-center">Không có cuộc trò chuyện phù hợp.</div>
             )}
           </div>
@@ -222,23 +245,27 @@ const MessagePage = () => {
 
               {/* Vùng hiển thị tin nhắn */}
               <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/30">
-                {currentMessages.map((msg) => {
-                  const isMe = msg.senderId === currentUserId;
-                  return (
-                    <div key={msg.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
-                      <div 
-                        className={`max-w-[70%] px-5 py-3 text-sm ${
-                          isMe 
-                            ? "bg-blue-600 text-white rounded-2xl rounded-tr-sm" 
-                            : "bg-slate-100 text-slate-800 rounded-2xl rounded-tl-sm"
-                        }`}
-                      >
-                        {msg.text}
+                {isLoadingMessages ? (
+                  <div className="text-sm text-slate-400 text-center py-8">Đang tải tin nhắn...</div>
+                ) : (
+                  currentMessages.map((msg) => {
+                    const isMe = msg.senderId === currentUserId;
+                    return (
+                      <div key={msg.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
+                        <div 
+                          className={`max-w-[70%] px-5 py-3 text-sm whitespace-pre-line break-words ${
+                            isMe 
+                              ? "bg-blue-600 text-white rounded-2xl rounded-tr-sm" 
+                              : "bg-slate-100 text-slate-800 rounded-2xl rounded-tl-sm"
+                          }`}
+                        >
+                          {msg.text}
+                        </div>
+                        <span className="text-[11px] text-slate-400 mt-1.5 px-1">{msg.time}</span>
                       </div>
-                      <span className="text-[11px] text-slate-400 mt-1.5 px-1">{msg.time}</span>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
                 <div ref={messagesEndRef} />
               </div>
 

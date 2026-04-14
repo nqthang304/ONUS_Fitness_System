@@ -1,4 +1,6 @@
 from django.db.models import Q
+from django.contrib.auth.models import User
+from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -8,7 +10,7 @@ from django.db.models.deletion import ProtectedError
 
 from accounts.models import HLV, HoiVien
 
-from .models import BaiDang, BinhLuan, TuongTac
+from .models import BaiDang, BinhLuan, TuongTac, TinNhan
 from .serializers import (
 	BaiDangCreateSerializer,
 	BaiDangReadSerializer,
@@ -16,6 +18,8 @@ from .serializers import (
 	TuongTacSerializer,
 	BinhLuanReadSerializer,
 	BinhLuanCreateSerializer,
+	TinNhanReadSerializer,
+	TinNhanCreateSerializer,
 )
 
 
@@ -256,3 +260,146 @@ class BaiDangBinhLuanView(APIView):
 		serializer.is_valid(raise_exception=True)
 		comment = serializer.save(Id_BaiDang=post, Id_NguoiDung=request.user)
 		return Response(BinhLuanReadSerializer(comment, context={'request': request}).data, status=status.HTTP_201_CREATED)
+
+
+class TinNhanBaseView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def _to_local_time(self, dt):
+		if not dt:
+			return None
+		return timezone.localtime(dt)
+
+	def _resolve_user_role(self, user):
+		if not user:
+			return None
+
+		if user.is_staff or user.groups.filter(name__iexact='admin').exists():
+			return 'admin'
+
+		if user.groups.filter(name__iexact='hlv').exists():
+			return 'hlv'
+
+		if user.groups.filter(name__iexact='hoivien').exists():
+			return 'hoivien'
+
+		return None
+
+	def _resolve_display_name(self, user):
+		if not user:
+			return 'Nguoi dung'
+
+		if user.is_staff or user.groups.filter(name__iexact='admin').exists():
+			return 'Admin'
+
+		if user.groups.filter(name__iexact='hlv').exists():
+			profile = HLV.objects.filter(Id_TaiKhoan=user).first()
+			return profile.HoTen if profile and profile.HoTen else user.username
+
+		if user.groups.filter(name__iexact='hoivien').exists():
+			profile = HoiVien.objects.filter(Id_TaiKhoan=user).first()
+			return profile.HoTen if profile and profile.HoTen else user.username
+
+		return user.username
+
+	def _get_allowed_partners(self, user):
+		role = self._resolve_user_role(user)
+
+		if role == 'hlv':
+			members = HoiVien.objects.filter(Id_HLV__Id_TaiKhoan=user).select_related('Id_TaiKhoan')
+			return [member.Id_TaiKhoan for member in members if member.Id_TaiKhoan]
+
+		if role == 'hoivien':
+			profile = HoiVien.objects.select_related('Id_HLV__Id_TaiKhoan').filter(Id_TaiKhoan=user).first()
+			if profile and profile.Id_HLV and profile.Id_HLV.Id_TaiKhoan:
+				return [profile.Id_HLV.Id_TaiKhoan]
+			return []
+
+		if role == 'admin':
+			return list(User.objects.exclude(id=user.id))
+
+		return []
+
+	def _can_message_partner(self, user, partner):
+		allowed_ids = {item.id for item in self._get_allowed_partners(user)}
+		return partner.id in allowed_ids
+
+
+class TinNhanConversationView(TinNhanBaseView):
+	def get(self, request):
+		current_user = request.user
+		partners = self._get_allowed_partners(current_user)
+		conversations = []
+
+		for partner in partners:
+			last_message = TinNhan.objects.filter(
+				Q(Id_NguoiGui=current_user, Id_NguoiNhan=partner)
+				| Q(Id_NguoiGui=partner, Id_NguoiNhan=current_user)
+			).order_by('-ThoiGianGui').first()
+			last_message_local_time = self._to_local_time(last_message.ThoiGianGui) if last_message else None
+
+			unread_count = TinNhan.objects.filter(
+				Id_NguoiGui=partner,
+				Id_NguoiNhan=current_user,
+				DaXem=False,
+			).count()
+
+			conversations.append(
+				{
+					'partner_id': partner.id,
+					'partner_name': self._resolve_display_name(partner),
+					'partner_role': self._resolve_user_role(partner),
+					'last_message': last_message.NoiDung if last_message else 'Chưa có tin nhắn',
+					'last_message_time': last_message_local_time,
+					'last_message_time_display': last_message_local_time.strftime('%H:%M %d/%m/%Y') if last_message_local_time else '--:--',
+					'unread_count': unread_count,
+				}
+			)
+
+		conversations.sort(
+			key=lambda item: (
+				item['last_message_time'] is None,
+				-(item['last_message_time'].timestamp()) if item['last_message_time'] else 0,
+			)
+		)
+
+		return Response(conversations, status=status.HTTP_200_OK)
+
+
+class TinNhanMessageView(TinNhanBaseView):
+	def get(self, request):
+		partner_id = request.query_params.get('partner_id')
+		if not partner_id:
+			return Response({'detail': 'partner_id la bat buoc.'}, status=status.HTTP_400_BAD_REQUEST)
+
+		try:
+			partner = User.objects.get(id=int(partner_id))
+		except (User.DoesNotExist, ValueError, TypeError):
+			return Response({'detail': 'Nguoi nhan khong ton tai.'}, status=status.HTTP_404_NOT_FOUND)
+
+		if not self._can_message_partner(request.user, partner):
+			return Response({'detail': 'Ban khong co quyen xem doan chat nay.'}, status=status.HTTP_403_FORBIDDEN)
+
+		TinNhan.objects.filter(Id_NguoiGui=partner, Id_NguoiNhan=request.user, DaXem=False).update(DaXem=True)
+
+		queryset = TinNhan.objects.filter(
+			Q(Id_NguoiGui=request.user, Id_NguoiNhan=partner)
+			| Q(Id_NguoiGui=partner, Id_NguoiNhan=request.user)
+		).order_by('ThoiGianGui')
+
+		serializer = TinNhanReadSerializer(queryset, many=True, context={'request': request})
+		return Response(serializer.data, status=status.HTTP_200_OK)
+
+	def post(self, request):
+		serializer = TinNhanCreateSerializer(data=request.data, context={'request': request})
+		serializer.is_valid(raise_exception=True)
+
+		receiver = serializer.validated_data.get('Id_NguoiNhan')
+		if not receiver:
+			return Response({'detail': 'Nguoi nhan khong hop le.'}, status=status.HTTP_400_BAD_REQUEST)
+
+		if not self._can_message_partner(request.user, receiver):
+			return Response({'detail': 'Ban khong co quyen nhan tin nguoi nay.'}, status=status.HTTP_403_FORBIDDEN)
+
+		message = serializer.save(Id_NguoiGui=request.user, Id_NguoiNhan=receiver)
+		return Response(TinNhanReadSerializer(message, context={'request': request}).data, status=status.HTTP_201_CREATED)

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import BaiDang, TuongTac, BinhLuan, TinNhan, ThongBao, ChiTietThongBao
 from accounts.models import HLV, HoiVien
 
@@ -12,7 +13,6 @@ class BaiDangSerializer(serializers.ModelSerializer):
 class BaiDangReadSerializer(serializers.ModelSerializer):
     author_id = serializers.IntegerField(source='Id_NguoiDang_id', read_only=True)
     author_name = serializers.SerializerMethodField()
-    author_avatar = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
     hlv_id = serializers.SerializerMethodField()
     content = serializers.CharField(source='NoiDung', read_only=True)
@@ -28,7 +28,6 @@ class BaiDangReadSerializer(serializers.ModelSerializer):
             'id',
             'author_id',
             'author_name',
-            'author_avatar',
             'role',
             'hlv_id',
             'content',
@@ -60,10 +59,6 @@ class BaiDangReadSerializer(serializers.ModelSerializer):
             return profile.HoTen if profile else user.username
 
         return 'Admin'
-
-    def get_author_avatar(self, obj):
-        # Chua co truong avatar trong model profile, giu null de FE fallback vao AvatarFallback.
-        return None
 
     def get_role(self, obj):
         return self._resolve_user_role(obj.Id_NguoiDang)
@@ -145,7 +140,9 @@ class BinhLuanCreateSerializer(serializers.ModelSerializer):
         fields = ['text', 'NoiDung']
 
     def validate(self, attrs):
-        text = attrs.get('NoiDung')
+        text = attrs.get('NoiDung', attrs.get('NoiDung', None))
+        if text is None:
+            text = attrs.get('NoiDung', '')
         if not text:
             text = self.initial_data.get('text') or self.initial_data.get('NoiDung') or ''
 
@@ -166,6 +163,65 @@ class TinNhanSerializer(serializers.ModelSerializer):
     class Meta:
         model = TinNhan
         fields = '__all__'
+
+
+class TinNhanReadSerializer(serializers.ModelSerializer):
+    sender_id = serializers.IntegerField(source='Id_NguoiGui_id', read_only=True)
+    receiver_id = serializers.IntegerField(source='Id_NguoiNhan_id', read_only=True)
+    text = serializers.CharField(source='NoiDung', read_only=True)
+    sent_at = serializers.DateTimeField(source='ThoiGianGui', read_only=True)
+    time = serializers.DateTimeField(source='ThoiGianGui', format='%H:%M %d/%m/%Y', read_only=True)
+    is_me = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TinNhan
+        fields = ['id', 'sender_id', 'receiver_id', 'text', 'sent_at', 'time', 'is_me']
+
+    def get_is_me(self, obj):
+        request = self.context.get('request')
+        user = getattr(request, 'user', None)
+        return bool(user and user.is_authenticated and obj.Id_NguoiGui_id == user.id)
+
+
+class TinNhanCreateSerializer(serializers.ModelSerializer):
+    receiver_id = serializers.IntegerField(write_only=True, required=False)
+    text = serializers.CharField(source='NoiDung', required=False, allow_blank=True, write_only=True)
+    NoiDung = serializers.CharField(required=False, allow_blank=True, write_only=True)
+
+    class Meta:
+        model = TinNhan
+        fields = ['receiver_id', 'text', 'NoiDung']
+
+    def validate(self, attrs):
+        text = attrs.get('NoiDung') or self.initial_data.get('text') or self.initial_data.get('NoiDung') or ''
+        if not str(text).strip():
+            raise serializers.ValidationError('Noi dung tin nhan khong duoc de trong.')
+
+        receiver_id = attrs.get('receiver_id')
+        if receiver_id is None:
+            receiver_id = self.initial_data.get('receiver_id')
+
+        try:
+            receiver_id = int(receiver_id)
+        except (ValueError, TypeError):
+            raise serializers.ValidationError('receiver_id khong hop le.')
+
+        try:
+            receiver = User.objects.get(id=receiver_id)
+        except User.DoesNotExist:
+            raise serializers.ValidationError('Nguoi nhan khong ton tai.')
+
+        attrs['NoiDung'] = str(text).strip()
+        attrs['Id_NguoiNhan'] = receiver
+        return attrs
+
+    def create(self, validated_data):
+        validated_data.pop('receiver_id', None)
+        validated_data.pop('text', None)
+        return super().create(validated_data)
+
+    def to_representation(self, instance):
+        return TinNhanReadSerializer(instance, context=self.context).data
 
 
 class BaiDangCreateSerializer(serializers.ModelSerializer):
