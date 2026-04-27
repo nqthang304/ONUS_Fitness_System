@@ -1,5 +1,6 @@
 import { useAuth } from "@/providers/auth.providers";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo_bg_rm.png";
 import {
   LayoutGrid, Activity, Calendar, MessageSquare,
   Bell, User, Users, Dumbbell, Utensils,
@@ -64,11 +65,18 @@ const Sidebar = () => {
   return (
     <aside className="w-72 h-screen flex flex-col bg-white border-r border-slate-100 font-figtree sticky top-0">
       {/* Logo */}
-      <div className="p-6 flex items-center gap-3">
+      {/* <div className="p-6 flex items-center gap-3">
         <div className="bg-onus-blue w-10 h-10 rounded-lg flex items-center justify-center shadow-lg shadow-blue-100">
           <Activity className="text-white w-6 h-6" />
         </div>
         <span className="text-2xl font-bold text-onus-blue tracking-tight">ONUS</span>
+      </div> */}
+      <div className="w-full px-3 pt-5 pb-3">
+        <img
+          src={logo}
+          alt="ONUS Logo"
+          className="block w-full max-h-12 object-contain"
+        />
       </div>
 
       <Separator className="mx-6 bg-slate-50" />

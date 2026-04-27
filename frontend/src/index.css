@@ -2,7 +2,8 @@
 
 
 @theme {
-  --color-onus-blue: #1d4ed8; 
+  /* --color-onus-blue: #1d4ed8;  */
+  --color-onus-blue: #E3682B; 
   --font-figtree: "Figtree", sans-serif; 
 }
 
