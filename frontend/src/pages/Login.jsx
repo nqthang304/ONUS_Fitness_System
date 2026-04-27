@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Zap, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, AlertCircle } from "lucide-react";
+import logo from "@/assets/logo_bg_rm.png";
 
 const Login = () => {
   const [phone, setPhone] = useState("");
@@ -37,16 +38,20 @@ const Login = () => {
       <Card className="w-full max-w-md p-10 rounded-2xl shadow-xl bg-white border border-slate-100">
 
         <CardHeader className="space-y-1 text-center p-0 mb-1">
-          <div className="bg-onus-blue w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-6">
-            <Zap className="text-white w-8 h-8" />
+          <div className="mx-auto mb-6 flex items-center justify-center">
+            <img
+              src={logo}
+              alt="ONUS Logo"
+              className="block h-16 w-auto object-contain"
+            />
           </div>
 
-          <CardTitle className="text-3xl font-bold text-slate-900">
+          {/* <CardTitle className="text-3xl font-bold text-slate-900">
             Đăng nhập
           </CardTitle>
           <CardDescription className="text-sm text-slate-500">
             Hệ thống quản lý phòng tập ONUS
-          </CardDescription>
+          </CardDescription> */}
         </CardHeader>
 
         <form onSubmit={handleSubmit} autoComplete="username">
