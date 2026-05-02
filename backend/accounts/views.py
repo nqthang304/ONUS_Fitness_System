@@ -205,7 +205,11 @@ class AccountListView(APIView):
         if not self._is_admin_user(request.user):
             return Response({"detail": "Bạn không có quyền truy cập."}, status=status.HTTP_403_FORBIDDEN)
 
-        users = User.objects.all().prefetch_related('groups')
+        users = User.objects.all().prefetch_related('groups').exclude(
+            is_staff=True
+        ).exclude(
+            groups__name='admin'
+        )
         hlv_profiles = {
             p.Id_TaiKhoan_id: p
             for p in HLV.objects.select_related('Id_TaiKhoan')

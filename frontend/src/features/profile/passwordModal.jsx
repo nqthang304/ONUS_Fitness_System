@@ -59,6 +59,10 @@ export const PasswordModal = ({ isOpen, onOpenChange, onSubmit }) => {
       setError("Mật khẩu phải chứa ít nhất 1 chữ số.");
       return;
     }
+    if (!/[!@#$%^&*(),.?":{}|<> ]/.test(passwords.new)) {
+      setError("Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt.");
+      return;
+    }
     // 6. Kiểm tra khớp mật khẩu
     if (passwords.new !== passwords.confirm) {
       setError("Mật khẩu xác nhận không khớp.");
@@ -79,11 +83,11 @@ export const PasswordModal = ({ isOpen, onOpenChange, onSubmit }) => {
         statusText: err?.response?.statusText,
         data: err?.response?.data
       });
-      
+
       // Xử lý lỗi từ backend
       let errorMsg = "Đổi mật khẩu thất bại. Vui lòng thử lại.";
       const errorData = err?.response?.data;
-      
+
       if (err?.response?.status === 400) {
         // Lỗi validation từ backend
         if (errorData?.old_password?.[0]) {
@@ -98,7 +102,7 @@ export const PasswordModal = ({ isOpen, onOpenChange, onSubmit }) => {
       } else if (err?.response?.status === 401) {
         errorMsg = "Phiên làm việc hết hạn. Vui lòng đăng nhập lại.";
       }
-      
+
       setError(errorMsg);
     } finally {
       setIsLoading(false);
@@ -115,9 +119,9 @@ export const PasswordModal = ({ isOpen, onOpenChange, onSubmit }) => {
         <div className="space-y-3 py-2">
           <div>
             <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Mật khẩu hiện tại</label>
-            <Input 
-              type="password" 
-              className="h-11 rounded-xl bg-slate-50" 
+            <Input
+              type="password"
+              className="h-11 rounded-xl bg-slate-50"
               value={passwords.current}
               // --- SỬA LỖI 2: Xóa đoạn 'isLoading ||' viết sai cú pháp ---
               onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
@@ -127,9 +131,9 @@ export const PasswordModal = ({ isOpen, onOpenChange, onSubmit }) => {
 
           <div>
             <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Mật khẩu mới</label>
-            <Input 
-              type="password" 
-              className="h-11 rounded-xl bg-slate-50 mb-1" 
+            <Input
+              type="password"
+              className="h-11 rounded-xl bg-slate-50 mb-1"
               value={passwords.new}
               onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
               disabled={isLoading || !!success}
@@ -139,9 +143,9 @@ export const PasswordModal = ({ isOpen, onOpenChange, onSubmit }) => {
 
           <div>
             <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Xác nhận mật khẩu mới</label>
-            <Input 
-              type="password" 
-              className="h-11 rounded-xl bg-slate-50" 
+            <Input
+              type="password"
+              className="h-11 rounded-xl bg-slate-50"
               value={passwords.confirm}
               onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
               disabled={isLoading || !!success}
@@ -153,17 +157,17 @@ export const PasswordModal = ({ isOpen, onOpenChange, onSubmit }) => {
         </div>
 
         <DialogFooter className="gap-2 sm:space-x-0 mt-0">
-          <Button 
-            variant="ghost" 
-            className="rounded-xl flex-1 bg-slate-100 hover:bg-slate-200" 
-            onClick={handleClose} 
+          <Button
+            variant="ghost"
+            className="rounded-xl flex-1 bg-slate-100 hover:bg-slate-200"
+            onClick={handleClose}
             disabled={isLoading || !!success}
           >
             Hủy
           </Button>
-          <Button 
-            className="bg-blue-600 hover:bg-blue-700 rounded-xl flex-1" 
-            onClick={handleSave} 
+          <Button
+            className="bg-blue-600 hover:bg-blue-700 rounded-xl flex-1"
+            onClick={handleSave}
             disabled={isLoading || !!success}
           >
             {isLoading ? "Đang lưu..." : success ? "Đã lưu" : "Lưu thay đổi"}
