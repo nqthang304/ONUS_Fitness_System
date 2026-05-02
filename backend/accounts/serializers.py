@@ -97,6 +97,9 @@ class ChangePasswordSerializer(serializers.Serializer):
         # Kiểm tra có số
         if not any(c.isdigit() for c in value):
             raise serializers.ValidationError("Mật khẩu phải chứa ít nhất 1 chữ số.")
+        # Kiểm tra có ký tự đặc biệt
+        if not any(not c.isalnum() for c in value):
+            raise serializers.ValidationError("Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt.")
         return value
 
     def validate(self, attrs):
